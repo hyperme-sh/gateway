@@ -44,7 +44,7 @@ async def test_restart_lost_ack_and_drain_fence(tmp_path):
     queue=DigestQueue(path);queue.fence(tenant,lease)
     with pytest.raises(ValueError,match='draining'):queue.begin(tenant,lease,['token_digest_count'])
     await queue.flush(plane)
-    assert calls[0]==calls[1]
+    assert calls[0]==calls[2]
     assert {x[2]['quantity'] for x in calls}=={1,123}
     assert all(set(x[2])=={'meter','quantity','batch_id'} for x in calls)
     assert all(x[2]['batch_id']==identifier for x in calls)
@@ -141,3 +141,48 @@ async def test_http_reading_retries_unchanged_and_rejects_wrong_scope(monkeypatc
     assert calls[0].headers['Authorization']=='Bearer hm_gw_unit'
     reply['tenant_id']=str(uuid.uuid4())
     with pytest.raises(RuntimeError,match='mismatch'):await plane.post_reading(tenant,lease,payload)
+
+
+async def test_refused_lease_does_not_starve_other_tenants(tmp_path):
+    q=DigestQueue(tmp_path/'counts.db');bad=uuid.uuid4();good=uuid.uuid4();lease=uuid.uuid4()
+    for _ in range(101):
+        identifier=q.begin(bad,lease,['token_digest_count']);q.finish(identifier,1)
+    identifier=q.begin(good,lease,['token_digest_count']);q.finish(identifier,2)
+    sent=[]
+    async def post(tenant,resource,payload):
+        if tenant==bad:raise PermissionError('reassigned')
+        sent.append(payload)
+    plane=SimpleNamespace(post_reading=post)
+    await q.flush(plane);await q.flush(plane)
+    assert len(sent)==1 and q.drained(good,lease) and not q.drained(bad,lease)
+    q.close()
+
+
+async def test_ir_rejection_does_not_leave_pending_count(http_client,tenant_headers,app,tenant_id,tmp_path,monkeypatch):
+    from dataclasses import replace
+    from fastapi import HTTPException
+    from test_hypermesh_gateway import _signed_ticket,_ir
+    from hypermesh_gateway_service import routes
+    lease=uuid.uuid4()
+    app.state.ticket_cache.put(tenant_id,replace(_signed_ticket(lease,purpose='ir'),digest_meters=('token_digest_count',)))
+    queue=DigestQueue(tmp_path/'counts.db');app.state.digest_queue=queue
+    monkeypatch.setattr(routes,'_load_policies',AsyncMock(return_value=[]))
+    monkeypatch.setattr(routes,'_classifier',lambda request:SimpleNamespace(classify=lambda text:SimpleNamespace(decision='allow',prompt_class='benign',pack_version='unit')))
+    def reject(*args):raise HTTPException(409,'run paused')
+    monkeypatch.setattr(routes,'_gate_router_run',reject)
+    response=await http_client.post('/v1/ir/chat/completions',headers=_ir(tenant_headers),json={'lease_id':str(lease),'messages':[{'role':'user','content':'hello'}]})
+    assert response.status_code==409,response.text
+    assert queue.db.execute('SELECT count(*) FROM requests').fetchone()[0]==0
+
+
+async def test_finishing_counts_does_not_await_delivery(tmp_path):
+    from hypermesh_gateway_service.routes import _finish_digest
+    queue=DigestQueue(tmp_path/'counts.db');tenant,lease=uuid.uuid4(),uuid.uuid4()
+    identifier=queue.begin(tenant,lease,['token_digest_count'])
+    plane=SimpleNamespace(post_reading=AsyncMock(side_effect=AssertionError('network before session counters')))
+    req=SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(digest_queue=queue,control_plane=plane)))
+    proxied=SimpleNamespace(count_complete=True,count_parser=SimpleNamespace(finish=lambda:3))
+    await _finish_digest(req,identifier,proxied)
+    assert queue.db.execute('SELECT quantity FROM batches').fetchone()[0]==3
+    plane.post_reading.assert_not_awaited()
+    queue.close()

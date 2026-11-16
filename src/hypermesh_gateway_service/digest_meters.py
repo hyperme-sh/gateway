@@ -1,4 +1,5 @@
 """Count-only durable batches. Unknown usage blocks draining rather than guessing."""
+import asyncio
 import json
 import os
 import sqlite3
@@ -74,10 +75,14 @@ class DigestQueue:
                 meters TEXT NOT NULL, complete INTEGER NOT NULL DEFAULT 0);
             CREATE TABLE IF NOT EXISTS batches (
                 request TEXT NOT NULL REFERENCES requests(id), meter TEXT NOT NULL,
-                quantity INTEGER NOT NULL, sent INTEGER NOT NULL DEFAULT 0,
+                quantity INTEGER NOT NULL, sent INTEGER NOT NULL DEFAULT 0, attempts INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY(request,meter));
             CREATE TABLE IF NOT EXISTS fences (tenant TEXT, lease TEXT, PRIMARY KEY(tenant,lease));
         ''')
+
+        if 'attempts' not in {r[1] for r in self.db.execute('PRAGMA table_info(batches)')}:
+            with self.db:
+                self.db.execute('ALTER TABLE batches ADD COLUMN attempts INTEGER NOT NULL DEFAULT 0')
 
     def begin(self, tenant, lease, meters):
         meters = selected(meters)
@@ -123,14 +128,20 @@ class DigestQueue:
     async def flush(self, plane, *, tenant=None, lease=None):
         rows = self.db.execute('''SELECT r.id,r.tenant,r.lease,b.meter,b.quantity FROM requests r
             JOIN batches b ON b.request=r.id WHERE b.sent=0 AND (? IS NULL OR r.tenant=?)
-            AND (? IS NULL OR r.lease=?) ORDER BY r.rowid,b.meter LIMIT 100''',
+            AND (? IS NULL OR r.lease=?) ORDER BY b.attempts,r.rowid,b.meter LIMIT 100''',
             (str(tenant) if tenant else None, str(tenant), str(lease) if lease else None, str(lease))).fetchall()
+        deadline = asyncio.get_running_loop().time() + 1
         for identifier, owner, resource, meter, quantity in rows:
+            if asyncio.get_running_loop().time() >= deadline:
+                break
+            with self.db:
+                self.db.execute('UPDATE batches SET attempts=attempts+1 WHERE request=? AND meter=?', (identifier, meter))
             try:
-                await plane.post_reading(uuid.UUID(owner), uuid.UUID(resource),
+                async with asyncio.timeout_at(deadline):
+                    await plane.post_reading(uuid.UUID(owner), uuid.UUID(resource),
                                          {'meter':meter, 'quantity':quantity, 'batch_id':identifier})
             except Exception:
-                return
+                continue
             with self.db:
                 self.db.execute('UPDATE batches SET sent=1 WHERE request=? AND meter=?', (identifier, meter))
 

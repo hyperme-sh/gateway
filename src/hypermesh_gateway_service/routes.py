@@ -934,7 +934,6 @@ async def _finish_digest(request, identifier, proxied):
     tokens = proxied.count_parser.finish() if proxied.count_complete else None
     queue = request.app.state.digest_queue
     queue.finish(identifier, tokens)
-    await queue.flush(_control(request))
 
 
 @router.post('/leases/{lease_id}/meter-drain')
@@ -1057,6 +1056,8 @@ async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingRespo
             quota=_quota(request),
             reservation=reservation,
         )
+        if digest_id is not None:
+            await request.app.state.digest_queue.flush(_control(request))
 
     return _stream_chat(proxied, after_bytes=_meter)
 
@@ -1264,8 +1265,8 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
     runtime = getattr(request.app.state, "runtime_client", None)
     reservation = _reserve_meter(request)
     try:
-        digest_id = _begin_digest(request, tenant_id, lease_id, cached)
         _gate_router_run(request, tenant_id, lease_id)
+        digest_id = _begin_digest(request, tenant_id, lease_id, cached)
         proxied = await proxy_chat(
             lease_id=lease_id,
             payload=(body.model_dump(mode="json") | ({"stream_options":{"include_usage":True}} if digest_id is not None and getattr(body, "stream", False) else {})),
@@ -1315,6 +1316,8 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
             quota=_quota(request),
             reservation=reservation,
         )
+        if digest_id is not None:
+            await request.app.state.digest_queue.flush(_control(request))
 
     return _stream_chat(proxied, after_bytes=_meter)
 
