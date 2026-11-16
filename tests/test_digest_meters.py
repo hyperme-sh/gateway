@@ -93,6 +93,9 @@ async def test_drain_auth_scope_and_pending(tmp_path):
     assert err.value.status_code==409
     q.finish(identifier,3)
     assert (await drain_digest(req,lease))['drained'] is True
+    state.ticket_cache=SimpleNamespace(get=lambda t,l:None)
+    assert (await drain_digest(req,lease))['drained'] is True
+    state.ticket_cache=SimpleNamespace(get=lambda t,l:cached)
     plane.gateway_identity.return_value=uuid.uuid4()
     with pytest.raises(HTTPException) as err:await drain_digest(req,lease)
     assert err.value.status_code==403

@@ -943,7 +943,9 @@ async def drain_digest(request: Request, lease_id: uuid.UUID):
     tenant = _tenant_id(request)
     cached = _tickets(request).get(tenant, lease_id)
     queue = getattr(request.app.state, 'digest_queue', None)
-    if queue is None or (not queue.fenced(tenant, lease_id) and (cached is None or not cached.digest_meters)):
+    if queue is None:
+        raise HTTPException(503, 'Digest producer is not configured')
+    if cached is not None and not cached.digest_meters:
         raise HTTPException(409, 'Assigned digest lease required')
     identity = await _control(request).gateway_identity(tenant)
     if cached is not None and cached.assigned_gateway_id != identity:
