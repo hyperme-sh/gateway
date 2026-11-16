@@ -25,7 +25,7 @@
     },
     {
       "before": "hypermesh-ticket @ git+https://github.com/hyperme-sh/hypermesh-ticket.git@b62224be15665abb864d0dfd660fc558fb78b23f",
-      "after": "hypermesh-ticket @ git+https://github.com/hyperme-sh/hypermesh-ticket.git@78cf2d163f6d04f017980e07b62f4093bb053fc5"
+      "after": "hypermesh-ticket @ git+https://github.com/hyperme-sh/ticket.git@78cf2d163f6d04f017980e07b62f4093bb053fc5"
     }
   ],
   "version_policy": "pre-0.24",
