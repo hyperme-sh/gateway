@@ -263,3 +263,37 @@ def test_shared_tenant_organizations_have_separate_capacity(tmp_path):
         q.begin(tenant,uuid.uuid4(),['token_digest_count'],organization=org)
     assert q.begin(tenant,uuid.uuid4(),['token_digest_count'],organization=uuid.uuid4())
     q.close()
+
+
+async def test_host_forwarding_waits_for_plane_admission(http_client,tenant_headers,app,tenant_id,tmp_path,monkeypatch):
+    from dataclasses import replace
+    from test_hypermesh_gateway import _signed_ticket,_renter
+    from hypermesh_gateway_service import routes
+    lease=uuid.uuid4();queue=DigestQueue(tmp_path/'counts.db');app.state.digest_queue=queue
+    app.state.ticket_cache.put(tenant_id,replace(_signed_ticket(lease),digest_meters=('token_digest_count',)))
+    app.state.control_plane.admit_batch=AsyncMock(side_effect=RuntimeError('expired'))
+    proxy=AsyncMock();monkeypatch.setattr(routes,'proxy_chat',proxy)
+    response=await http_client.post('/v1/chat/completions',headers=_renter(tenant_headers),json={'lease_id':str(lease),'messages':[{'role':'user','content':'hello'}]})
+    assert response.status_code==503,response.text
+    proxy.assert_not_awaited()
+    assert queue.drained(tenant_id,lease)
+
+
+async def test_admission_ack_binds_batch_meters_and_gateway(monkeypatch):
+    import httpx
+    from hypermesh_gateway_service.control_plane import HttpControlPlane
+    tenant,lease,gateway=uuid.uuid4(),uuid.uuid4(),uuid.uuid4();batch=str(uuid.uuid4())
+    reply=dict(tenant_id=str(tenant),lease_id=str(lease),gateway_id=str(gateway),batch_id=batch,meters=['token_digest_count'])
+    calls=[]
+    def handle(request):
+        calls.append(request)
+        return httpx.Response(200,json=reply)
+    real=httpx.AsyncClient
+    monkeypatch.setattr('hypermesh_gateway_service.control_plane.httpx.AsyncClient',lambda **kw:real(transport=httpx.MockTransport(handle),**kw))
+    plane=HttpControlPlane('https://plane.example',service_secret='hm_gw_unit')
+    await plane.admit_batch(tenant,lease,batch,['token_digest_count'],gateway_id=gateway)
+    assert calls[0].url.path.endswith('/meter-admissions')
+    assert calls[0].headers['Authorization']=='Bearer hm_gw_unit'
+    reply['gateway_id']=str(uuid.uuid4())
+    with pytest.raises(RuntimeError,match='scope mismatch'):
+        await plane.admit_batch(tenant,lease,batch,['token_digest_count'],gateway_id=gateway)

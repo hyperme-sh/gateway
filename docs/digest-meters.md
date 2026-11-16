@@ -37,3 +37,11 @@ permitted. Operator cancellation does not discard already produced counts.
 The scheduled CI batch owns cross-service scenarios. Unit/contract checks cover
 scope rejection, durable retry, parser bounds and flush-before-close. No package
 version, wallet asset, enterprise redemption rule or provider setting changes.
+
+Before a host call, Gateway registers the durable request ID and selected meters
+with Plane's meter-admissions endpoint. Refusal or an ambiguous admission reply
+prevents the host call and retires the local unstarted marker. Plane admits new
+IDs only while the signed ticket is current and the peer allocated; that frozen
+set can finish after expiry or revocation without restoring access. Missing
+final counts remain Gateway #69 recovery work. Independent verification remains
+Gateway #70, and rollout stays disabled pending both and deployment configuration.

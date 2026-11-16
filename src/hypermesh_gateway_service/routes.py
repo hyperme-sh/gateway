@@ -915,7 +915,7 @@ def _not_ready_reason(
     return "peer_down"
 
 
-def _begin_digest(request, tenant, lease, cached):
+async def _begin_digest(request, tenant, lease, cached):
     meters = cached.digest_meters if cached else ()
     if not meters:
         return None
@@ -923,9 +923,17 @@ def _begin_digest(request, tenant, lease, cached):
     if queue is None:
         raise HTTPException(503, 'Digest producer is not configured')
     try:
-        return queue.begin(tenant, lease, meters, organization=cached.renter_organization_id)
+        identifier=queue.begin(tenant, lease, meters, organization=cached.renter_organization_id)
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from exc
+    try:
+        await _control(request).admit_batch(tenant,lease,identifier,meters,gateway_id=cached.assigned_gateway_id)
+    except BaseException as exc:
+        # Host forwarding has not started, even if the admission ACK was lost.
+        queue.discard_unstarted(identifier)
+        if isinstance(exc,Exception):raise HTTPException(503,'Count batch admission unavailable') from None
+        raise
+    return identifier
 
 
 async def _finish_digest(request, identifier, proxied):
@@ -1027,7 +1035,7 @@ async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingRespo
     reservation = _reserve_meter(request)
     digest_id = None
     try:
-        digest_id = _begin_digest(request, tenant_id, lease_id, cached)
+        digest_id = await _begin_digest(request, tenant_id, lease_id, cached)
         proxied = await proxy_chat(
             lease_id=lease_id,
             payload=(body.model_dump(mode="json") | ({"stream_options":{"include_usage":True}} if digest_id is not None and getattr(body, "stream", False) else {})),
@@ -1270,7 +1278,7 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
     digest_id = None
     try:
         _gate_router_run(request, tenant_id, lease_id)
-        digest_id = _begin_digest(request, tenant_id, lease_id, cached)
+        digest_id = await _begin_digest(request, tenant_id, lease_id, cached)
         proxied = await proxy_chat(
             lease_id=lease_id,
             payload=(body.model_dump(mode="json") | ({"stream_options":{"include_usage":True}} if digest_id is not None and getattr(body, "stream", False) else {})),
