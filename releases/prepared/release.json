@@ -5,11 +5,11 @@
     "hypermesh-gateway": {
       "version": "0.1.0",
       "contract": "contract.json",
-      "contract_sha256": "86a755edd261a5fe950b71bda1774af8363f017e2b6d44dd3ddac059086d0a64",
+      "contract_sha256": "32f2bc812ce0bcdac3285eec38809288fd9e833b314f127cfd4d1d264b99225d",
       "artifact": {
         "kind": "package",
-        "uri": "urn:sha256:6ef3b1509fa1ad62dd422c33c4867659047c8f55ebcd455ef1a935f2cf4d5c9e",
-        "sha256": "6ef3b1509fa1ad62dd422c33c4867659047c8f55ebcd455ef1a935f2cf4d5c9e"
+        "uri": "urn:sha256:d44af0a53234a5d8e9fea6c6cf326ae091c31e9b0fd0e832898639dca39966b1",
+        "sha256": "d44af0a53234a5d8e9fea6c6cf326ae091c31e9b0fd0e832898639dca39966b1"
       }
     }
   }

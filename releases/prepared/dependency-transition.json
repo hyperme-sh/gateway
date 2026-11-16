@@ -58,7 +58,7 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "bb8e5013cf9c2fe3de6c257eda5907a83b34b981913bc497896100d1d0ec956a",
+      "after_sha256": "851342768fd3e1e0211e1b1ad17337c34efc32d714ce65fec006ba2b7ced48d7",
       "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
       "regression_test": "tests/test_digest_meters.py"
     },

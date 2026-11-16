@@ -933,6 +933,15 @@ async def _begin_digest(request, tenant, lease, cached):
         queue.discard_unstarted(identifier)
         if isinstance(exc,Exception):raise HTTPException(503,'Count batch admission unavailable') from None
         raise
+    try:
+        _gate_router_run(request,tenant,lease)
+        if _tickets(request).get(tenant,lease) != cached:
+            raise HTTPException(409,'Lease ticket changed during count admission')
+        require_chat_posture(_tickets(request),tenant,lease,peer_up=True)
+    except BaseException as exc:
+        queue.discard_unstarted(identifier)
+        if isinstance(exc,TicketNotReady):raise instance_not_ready('ticket_expired') from None
+        raise
     return identifier
 
 
