@@ -77,14 +77,10 @@ async def remove(request: Request, body: IdentityBody, response: Response):
     response.headers["Cache-Control"] = "no-store"
     service, identity = authenticated(request, body)
     peers = service["peers"]
-    async with peers.lock:
-        peer = peers.peers.get(identity)
-        if peer is not None:
-            try:
-                await peers.driver.remove(peer.permission.public_key, peer.address)
-            except (OSError, subprocess.SubprocessError):
-                raise HTTPException(503, "Phone peer removal unavailable") from None
-            del peers.peers[identity]
+    try:
+        await peers.remove(identity)
+    except (OSError, subprocess.SubprocessError):
+        raise HTTPException(503, "Phone peer removal unavailable") from None
     return {"removed": True}
 
 

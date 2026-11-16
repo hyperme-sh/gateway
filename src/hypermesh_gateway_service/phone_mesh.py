@@ -108,7 +108,18 @@ class PhonePeers:
         self.addresses = tuple(str(ip) for ip in network.hosts() if ip != gateway)
         self.authority, self.driver = authority, driver
         self.peers: dict[PhoneIdentity, Peer] = {}
+        self.pending: dict[PhoneIdentity, list[list[bool]]] = {}
         self.lock = asyncio.Lock()
+
+    async def remove(self, identity: PhoneIdentity):
+        async with self.lock:
+            # Fence even a first provisioning request still awaiting authority.
+            for operation in self.pending.get(identity, []):
+                operation[0] = True
+            peer = self.peers.get(identity)
+            if peer is not None:
+                await self.driver.remove(peer.permission.public_key, peer.address)
+                del self.peers[identity]
 
     async def expire(self):
         async with self.lock:
@@ -122,10 +133,22 @@ class PhonePeers:
                 del self.peers[identity]
 
     async def provision(self, identity: PhoneIdentity, grant: str) -> Peer:
-        permission = await self.authority.verify(identity, grant)
+        operation = [False]
+        self.pending.setdefault(identity, []).append(operation)
+        try:
+            permission = await self.authority.verify(identity, grant)
+            return await self._provision(identity, permission, operation)
+        finally:
+            operations = self.pending[identity]
+            # Remove by identity: equal uncancelled flags are separate calls.
+            operations[:] = [item for item in operations if item is not operation]
+            if not operations:
+                del self.pending[identity]
+
+    async def _provision(self, identity, permission, operation):
         async with self.lock:
             await self._expire()
-            if permission.identity != identity or permission.expires_at <= time.time():
+            if operation[0] or permission.identity != identity or permission.expires_at <= time.time():
                 raise PhoneUnavailable("Phone authorization expired")
             existing = self.peers.get(identity)
             if existing and existing.permission.public_key != permission.public_key:

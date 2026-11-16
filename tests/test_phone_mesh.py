@@ -89,6 +89,25 @@ async def test_uncertain_apply_reserves_address_until_confirmed_removal(peers, m
     assert not peers.peers
 
 
+async def test_removal_fences_authority_request_already_in_flight(peers):
+    import asyncio
+    caller = identity()
+    entered, resume = asyncio.Event(), asyncio.Event()
+    original = peers.authority.verify
+    async def delayed(identity, grant):
+        permission = await original(identity, grant)
+        entered.set()
+        await resume.wait()
+        return permission
+    peers.authority.verify = delayed
+    task = asyncio.create_task(peers.provision(caller, "grant"))
+    await entered.wait()
+    await peers.remove(caller)
+    resume.set()
+    with pytest.raises(mesh.PhoneUnavailable): await task
+    assert not peers.driver.applied and not peers.peers and not peers.pending
+
+
 @pytest.mark.parametrize("origin", ["http://authority", "https://a/path", "https://user:pass@a", "https://a?x=1"])
 def test_authority_origin_is_fixed_https(origin):
     with pytest.raises(ValueError): mesh.Authority(origin, "gateway", "secret")
