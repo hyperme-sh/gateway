@@ -12,7 +12,7 @@ RUN uv venv --python /usr/local/bin/python /app/.venv \
 
 FROM python:3.13-slim-bookworm@sha256:281d39ff02e3b389401586134ff9e6572954687822a58055ec07a60ded4e0b7f
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates iproute2 wireguard-tools \
+    && apt-get install -y --no-install-recommends ca-certificates iproute2 wireguard-tools nftables \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv

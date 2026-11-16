@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import hashlib
 from dataclasses import dataclass
 import ipaddress
 import time
@@ -97,6 +98,13 @@ class Driver(Protocol):
 class Peer:
     permission: Permission
     address: str
+    grant_digest: str
+
+
+@dataclass
+class Pending:
+    grant_digest: str
+    cancelled: bool = False
 
 
 class PhonePeers:
@@ -108,16 +116,18 @@ class PhonePeers:
         self.addresses = tuple(str(ip) for ip in network.hosts() if ip != gateway)
         self.authority, self.driver = authority, driver
         self.peers: dict[PhoneIdentity, Peer] = {}
-        self.pending: dict[PhoneIdentity, list[list[bool]]] = {}
+        self.pending: dict[PhoneIdentity, list[Pending]] = {}
         self.lock = asyncio.Lock()
 
-    async def remove(self, identity: PhoneIdentity):
+    async def remove(self, identity: PhoneIdentity, grant: str | None = None):
+        digest = hashlib.sha256(grant.encode()).hexdigest() if grant is not None else None
         async with self.lock:
             # Fence even a first provisioning request still awaiting authority.
             for operation in self.pending.get(identity, []):
-                operation[0] = True
+                if digest is None or operation.grant_digest == digest:
+                    operation.cancelled = True
             peer = self.peers.get(identity)
-            if peer is not None:
+            if peer is not None and (digest is None or peer.grant_digest == digest):
                 await self.driver.remove(peer.permission.public_key, peer.address)
                 del self.peers[identity]
 
@@ -133,7 +143,7 @@ class PhonePeers:
                 del self.peers[identity]
 
     async def provision(self, identity: PhoneIdentity, grant: str) -> Peer:
-        operation = [False]
+        operation = Pending(hashlib.sha256(grant.encode()).hexdigest())
         self.pending.setdefault(identity, []).append(operation)
         try:
             permission = await self.authority.verify(identity, grant)
@@ -148,7 +158,7 @@ class PhonePeers:
     async def _provision(self, identity, permission, operation):
         async with self.lock:
             await self._expire()
-            if operation[0] or permission.identity != identity or permission.expires_at <= time.time():
+            if operation.cancelled or permission.identity != identity or permission.expires_at <= time.time():
                 raise PhoneUnavailable("Phone authorization expired")
             existing = self.peers.get(identity)
             if existing and existing.permission.public_key != permission.public_key:
@@ -165,7 +175,7 @@ class PhonePeers:
                     raise PhoneUnavailable("Phone address pool is full")
             # Reserve before applying: uncertain application must not free the
             # address for a different phone. Expiry cleanup retries removal.
-            peer = Peer(permission, address)
+            peer = Peer(permission, address, operation.grant_digest)
             self.peers[identity] = peer
             await self.driver.apply(permission.public_key, address, permission.expires_at)
             if permission.expires_at <= time.time():
