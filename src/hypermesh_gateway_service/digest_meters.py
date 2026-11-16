@@ -84,7 +84,11 @@ class DigestQueue:
             with self.db:
                 self.db.execute('ALTER TABLE batches ADD COLUMN attempts INTEGER NOT NULL DEFAULT 0')
 
-    def begin(self, tenant, lease, meters):
+        if 'organization' not in {r[1] for r in self.db.execute('PRAGMA table_info(requests)')}:
+            with self.db:
+                self.db.execute("ALTER TABLE requests ADD COLUMN organization TEXT NOT NULL DEFAULT ''")
+
+    def begin(self, tenant, lease, meters, *, organization=None):
         meters = selected(meters)
         if not meters:
             raise ValueError('Digest meters required')
@@ -93,12 +97,12 @@ class DigestQueue:
             self.db.execute('BEGIN IMMEDIATE')
             if self.db.execute('SELECT 1 FROM fences WHERE tenant=? AND lease=?', (str(tenant), str(lease))).fetchone():
                 raise ValueError('Lease is draining')
-            if self.db.execute('SELECT count(*) FROM requests WHERE tenant=?', (str(tenant),)).fetchone()[0] >= 1024:
-                raise ValueError('Tenant digest queue is full')
+            if self.db.execute('SELECT count(*) FROM requests WHERE tenant=? AND organization=?', (str(tenant),str(organization) if organization else '')).fetchone()[0] >= 1024:
+                raise ValueError('Organization digest queue is full')
             if self.db.execute('SELECT count(*) FROM requests WHERE tenant=? AND lease=?', (str(tenant),str(lease))).fetchone()[0] >= 128:
                 raise ValueError('Lease digest queue is full')
-            self.db.execute('INSERT INTO requests(id,tenant,lease,meters) VALUES(?,?,?,?)',
-                            (identifier, str(tenant), str(lease), json.dumps(meters)))
+            self.db.execute('INSERT INTO requests(id,tenant,lease,meters,organization) VALUES(?,?,?,?,?)',
+                            (identifier, str(tenant), str(lease), json.dumps(meters), str(organization) if organization else ''))
         return identifier
 
     def discard_unstarted(self, identifier):

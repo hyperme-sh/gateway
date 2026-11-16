@@ -923,7 +923,7 @@ def _begin_digest(request, tenant, lease, cached):
     if queue is None:
         raise HTTPException(503, 'Digest producer is not configured')
     try:
-        return queue.begin(tenant, lease, meters)
+        return queue.begin(tenant, lease, meters, organization=cached.renter_organization_id)
     except ValueError as exc:
         raise HTTPException(409, str(exc)) from exc
 

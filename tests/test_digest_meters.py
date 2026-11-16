@@ -252,3 +252,14 @@ async def test_local_serialization_failure_never_sends_to_host():
                              client_address='192.0.2.1',runtime_client=client)
     assert error.value.count_not_started is True
     send.assert_not_awaited()
+
+
+def test_shared_tenant_organizations_have_separate_capacity(tmp_path):
+    q=DigestQueue(tmp_path/'counts.db');tenant,org=uuid.uuid4(),uuid.uuid4()
+    for _ in range(8):
+        lease=uuid.uuid4()
+        for _ in range(128):q.begin(tenant,lease,['token_digest_count'],organization=org)
+    with pytest.raises(ValueError,match='Organization'):
+        q.begin(tenant,uuid.uuid4(),['token_digest_count'],organization=org)
+    assert q.begin(tenant,uuid.uuid4(),['token_digest_count'],organization=uuid.uuid4())
+    q.close()
