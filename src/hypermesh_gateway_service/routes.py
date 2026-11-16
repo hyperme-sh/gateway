@@ -958,6 +958,25 @@ async def _finish_digest(request, identifier, proxied):
     queue.finish(identifier, tokens)
 
 
+@router.post('/leases/{lease_id}/meter-repair/{batch_id}')
+async def repair_digest(request: Request, lease_id: uuid.UUID, batch_id: uuid.UUID):
+    _require_service_cred(request)
+    tenant = _tenant_id(request)
+    if await request.body():
+        raise HTTPException(400, 'Repair does not accept quantities or a request body')
+    consumer = getattr(request.app.state, 'trusted_meter', None)
+    if consumer is None:
+        raise HTTPException(503, 'Trusted digest producer is not configured')
+    gateway = await _control(request).gateway_identity(tenant)
+    cached = _tickets(request).get(tenant, lease_id)
+    try:
+        return await consumer.repair(tenant, lease_id, batch_id, gateway, cached)
+    except (ValueError, KeyError, TypeError):
+        raise HTTPException(409, 'Count repair remains unresolved') from None
+    except (RuntimeError, TimeoutError, OSError):
+        raise HTTPException(503, 'Count repair temporarily unavailable') from None
+
+
 @router.post('/leases/{lease_id}/meter-drain')
 async def drain_digest(request: Request, lease_id: uuid.UUID):
     _require_service_cred(request)

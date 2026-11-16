@@ -106,7 +106,7 @@ def create_app(
             if app.state.digest_queue is not None:
                 owners.callback(app.state.digest_queue.close)
                 from hypermesh_gateway_service.trusted_meter.client import Consumer
-                from hypermesh_gateway_service.trusted_meter.policy import configured as trusted_policy
+                from hypermesh_gateway_service.trusted_meter.policy import configured_history as trusted_policy
                 app.state.trusted_meter = Consumer(trusted_policy(), app.state.control_plane, app.state.digest_queue)
                 await app.state.trusted_meter.start()
                 owners.push_async_callback(app.state.trusted_meter.close)

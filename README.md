@@ -354,5 +354,42 @@ is not the supported contract for independently advancing shared libraries.
 Digest leases use the [trusted runtime consumer](docs/trusted-meter.md), with
 independent workload/report verification, key-bound guest TLS and signed Plane
 count authority. Provider usage totals cannot create trusted charges. The
-feature remains default-off; Gateway #69 and Infra #1638 retain recovery and
-owning configuration work.
+feature remains default-off. Interrupted repair is described below; Infra #1638
+retains owning configuration and qualification work.
+
+### Interrupted trusted counts
+
+The authenticated owner endpoint is
+`POST /leases/{lease_id}/meter-repair/{batch_id}` (also under the existing API
+prefix). Supply the Gateway service credential and `X-Tenant-ID`, with no body.
+Renter credentials and caller quantities are not accepted. The original batch,
+Gateway, tenant, lease, runtime key and frozen workload binding remain immutable.
+
+Repair reads Plane's signed original session and stored history. It verifies the
+original attestation and signed count chain before recovering an exact anchored
+terminal. It never reruns inference. A separate historical channel permits only
+Host status and retirement, including when a new guest serves an old journal.
+Withdrawal of execution policy does not restore execution: normal requests still
+require a current approved policy. No-start cancellation requires Plane's signed
+no-start decision and committed recovery; refusal keeps the request pending.
+
+An unanchored tail is independently checked and archived as disputed. The signed
+archive proof is committed locally before guest retirement. Disputed counts never
+settle and continue to block draining. Completed and disputed repair records move
+atomically to retained count-only history after guest acknowledgement, freeing
+active queue capacity while preserving replay and dispute status. Readback after
+retirement checks Plane again. No prompts, outputs or private keys are retained.
+Each renter organization has a separate 4,096-entry local history budget, with
+at most 1 MiB per entry. At capacity, the oldest completed local copies are
+reclaimed; Plane keeps the canonical records. Pending requests and disputed
+archives are never reclaimed. An organization whose unresolved work fills its
+budget is refused without consuming another organization's allowance. Repair of
+a completed ID whose local copy was reclaimed returns unresolved/unknown locally;
+its canonical history remains available through Plane's authenticated history API.
+
+Replies report `recovered` (`pending: false`), `disputed`, `missing_history`, or
+`legacy_unverified` (`pending: true`). Missing/conflicting records, unavailable
+owners and quota refusals keep local pending state. Legacy provider totals have
+no trusted runtime identity and remain explicitly unresolved; they are never
+converted to trusted quantities. Drain fences survive every repair outcome.
+Digest activation remains off pending Infra #1638 configuration and qualification.
