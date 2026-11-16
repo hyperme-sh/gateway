@@ -88,7 +88,7 @@ Send **one** credential header, `Authorization` or `X-Api-Key`. A request that i
 Python 3.13 and [uv](https://docs.astral.sh/uv/) 0.11.26. Dependencies are public Git pins; `uv sync --frozen` needs network access to GitHub and no extra credentials.
 
 ```bash
-git clone https://github.com/hyperme-sh/hypermesh-gateway.git
+git clone https://github.com/hyperme-sh/gateway.git
 cd hypermesh-gateway
 uv sync --frozen
 ```

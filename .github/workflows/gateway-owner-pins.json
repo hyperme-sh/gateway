@@ -32,7 +32,7 @@
       "recorded_image": "acrfybercg47.azurecr.io/controlplane-edge@sha256:1f86e31253ad3c628ad97e1ada0e45ee3f0621bae470cc30abe366ecdd2faa88"
     },
     "hypermesh-gateway": {
-      "repository": "hyperme-sh/hypermesh-gateway",
+      "repository": "hyperme-sh/gateway",
       "source_sha": "e6b6a4662cfdcd975ff9d4820b565c30545c39cf",
       "built_at": "2026-11-05T18:25:22Z",
       "image": "acrfybercg47.azurecr.io/hypermesh-gateway:test",
@@ -96,7 +96,7 @@
       "recorded_image": "acrfybercg47.azurecr.io/payments-access@sha256:5d5d17db5c331377fc411ec4ecd6cb19cd54fdf141379c538714ce0f850674c8"
     },
     "hypermesh-service": {
-      "repository": "hyperme-sh/hypermesh-plane",
+      "repository": "hyperme-sh/plane",
       "source_sha": "a6f4c2fd1bb447072fc8321a283037b12be483e3",
       "built_at": "2026-11-05T16:13:35Z",
       "image": "ghcr.io/hyperme-sh/hypermesh-plane/runtime:test",
