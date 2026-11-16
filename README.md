@@ -334,3 +334,17 @@ rotation through the shared identity contract and must meet the same validation.
 Errors identify settings without printing credentials. Laptop/test environments
 may explicitly set `EDGE_SECRETS_REQUIRED=false`; production keeps the default
 strict check. TEST continues to follow its moving service channel.
+
+Browser device-transfer and experiment run tokens never authorize this paid
+router, including bootstrap tenant selection. The shared identity verifier
+preserves their original run on derived tenant tokens; the gateway additionally
+refuses that marker even inside an inherited browser admission. These scopes
+belong to the public control-plane edge and serving owners. No browser run
+registry endpoint or grant forwarding is installed in the data-plane gateway.
+
+Standalone wheel consumers use the qualified graph bundled in the source archive:
+`bash scripts/install-qualified.sh /path/to/venv/bin/python /path/to/application.whl`.
+This verifies the private dependency manifest and wheel digests, then resolves the
+application wheel with explicit audited artifact overrides. CI uses this installer
+for external-wheel contracts; bare wheel installation without the qualified graph
+is not the supported contract for independently advancing shared libraries.

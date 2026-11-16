@@ -17,7 +17,7 @@
     },
     {
       "before": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@5675e7b617db705a7b0caf25f2d65d8a492f32b1",
-      "after": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@a2cb7f055dced17f76e64009395ffb7599557a71"
+      "after": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@14355f230e15a5acf3b1283e87d5f65aceff35ba"
     },
     {
       "before": "controlplane-tenancy @ git+https://github.com/hyperme-sh/controlplane-tenancy.git@09f26d3fa677b6cd8e43be3424b8e2fa793c6ba1",
@@ -52,9 +52,9 @@
     },
     "hypermesh_gateway_service/renter_auth.py": {
       "before_sha256": "085f612fa7169ab97e4dca8fb532c09f4de16a0517865bfa9dde2f1be09c07dc",
-      "after_sha256": "eb0f7e254090c700f06ff7c858f496b2ae143133511651bebe0b894dda3a59ce",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+      "after_sha256": "a4c65ecfa03ca4178be544934e310a77b629981201538a9443d97d2941b76e29",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Refuse original browser-run tokens on paid and bootstrap paths.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py; tests/test_renter_auth.py"
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",

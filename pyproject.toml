@@ -15,7 +15,7 @@ dependencies = [
     "cryptography>=44.0.0",
     "controlplane-api @ git+https://github.com/hyperme-sh/controlplane-api.git@316912f30dd90113ab9203eff1bc998bb89b47cf",
     "controlplane-tenancy @ git+https://github.com/hyperme-sh/controlplane-tenancy.git@f252909af772b2c820555af36de456d46f17cfcb",
-    "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@a2cb7f055dced17f76e64009395ffb7599557a71",
+    "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@14355f230e15a5acf3b1283e87d5f65aceff35ba",
     "controlplane-db @ git+https://github.com/hyperme-sh/controlplane-db.git@95ef61433374274f4a4fc287e15982be6357e1cc",
     "controlplane-events @ git+https://github.com/hyperme-sh/controlplane-events.git@2a49f9af5f6c4dc9d6c4ddebc83c41d6331e2c87",
 ]
@@ -49,6 +49,6 @@ markers = ["synthetic: ticket and mock-host chat completions (hermetic)"]
 # Qualify independent compatible package revisions as one application graph.
 [tool.uv]
 override-dependencies = [
-    "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@a2cb7f055dced17f76e64009395ffb7599557a71",
+    "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@14355f230e15a5acf3b1283e87d5f65aceff35ba",
     "controlplane-events @ git+https://github.com/hyperme-sh/controlplane-events.git@2a49f9af5f6c4dc9d6c4ddebc83c41d6331e2c87",
 ]
