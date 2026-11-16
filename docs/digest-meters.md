@@ -14,6 +14,11 @@ conflicting token totals keep the marker pending; bytes are never converted to
 tokens. The JSON/SSE parser has a 1 MiB bound and retains no response or prompt
 text on disk. The same request UUID is the batch ID for each declared meter.
 
+Unresolved work is bounded to 128 requests per lease and 1,024 per tenant.
+Definitive pre-host failures and explicit no-work rejections retire their marker;
+ambiguous delivery remains pending. Fully acknowledged requests are deleted
+transactionally; batch IDs remain durable until every declared meter is accepted.
+
 Completed batches commit before their first POST. Restarts and lost responses
 reuse the original batch IDs and quantities. A named post never falls back to
 legacy charged counters. Failed authorization, reassignment or unavailable Plane

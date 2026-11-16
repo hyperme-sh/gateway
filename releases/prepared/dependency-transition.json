@@ -58,7 +58,7 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "89071ae8cd3d84ec6734651e826b624de80534c07a655df8c12519868375cc27",
+      "after_sha256": "49d11e9f294e27bb6cd7bb8d7951267d0b7d802141d0f39fd1aedcfe849558a9",
       "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
       "regression_test": "tests/test_digest_meters.py"
     },
@@ -100,7 +100,7 @@
     },
     "hypermesh_gateway_service/chat.py": {
       "before_sha256": "0453f76d5871962f5e93b44b70f6de6425edae5c01de6c186a7ac70af0823029",
-      "after_sha256": "c14681415ce15a8b0798ce4596829dc4f8245b22208182ec97fa42c180cd5eca",
+      "after_sha256": "155bd4cf73db95cf36e143d3f2a882fbe36007f46f0054e9acdccaed63f9da28",
       "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
       "regression_test": "tests/test_digest_meters.py"
     },
@@ -176,7 +176,7 @@
     "hypermesh_gateway_service/digest_meters.py": {
       "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
       "regression_test": "tests/test_digest_meters.py",
-      "sha256": "4a5da0b50d4fb25962595054dff341911789c1ac58a8a348ced3b8587d5774a5"
+      "sha256": "091441a62dff4a127d6529fed073fcf05008e80454ede208cc7a770588f941b8"
     }
   },
   "removed_requirements": [

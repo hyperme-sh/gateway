@@ -1025,6 +1025,7 @@ async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingRespo
     runtime = getattr(request.app.state, "runtime_client", None)
     _gate_router_run(request, tenant_id, lease_id)
     reservation = _reserve_meter(request)
+    digest_id = None
     try:
         digest_id = _begin_digest(request, tenant_id, lease_id, cached)
         proxied = await proxy_chat(
@@ -1033,7 +1034,9 @@ async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingRespo
             client_address=claims.client_address,
             runtime_client=runtime,
         )
-    except BaseException:
+    except BaseException as exc:
+        if digest_id is not None and getattr(exc, 'count_not_started', False):
+            request.app.state.digest_queue.discard_unstarted(digest_id)
         _meters(request).release(reservation)
         raise
     _, _, handshakes = peer_counters(peer_key or "")
@@ -1264,6 +1267,7 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
             return gated
     runtime = getattr(request.app.state, "runtime_client", None)
     reservation = _reserve_meter(request)
+    digest_id = None
     try:
         _gate_router_run(request, tenant_id, lease_id)
         digest_id = _begin_digest(request, tenant_id, lease_id, cached)
@@ -1273,7 +1277,9 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
             client_address=claims.client_address,
             runtime_client=runtime,
         )
-    except BaseException:
+    except BaseException as exc:
+        if digest_id is not None and getattr(exc, 'count_not_started', False):
+            request.app.state.digest_queue.discard_unstarted(digest_id)
         _meters(request).release(reservation)
         store.record(
             organization_id=organization_id,

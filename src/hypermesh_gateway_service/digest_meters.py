@@ -93,11 +93,17 @@ class DigestQueue:
             self.db.execute('BEGIN IMMEDIATE')
             if self.db.execute('SELECT 1 FROM fences WHERE tenant=? AND lease=?', (str(tenant), str(lease))).fetchone():
                 raise ValueError('Lease is draining')
-            if self.db.execute('SELECT count(*) FROM requests WHERE complete=0 OR id IN (SELECT request FROM batches WHERE sent=0)').fetchone()[0] >= 10000:
-                raise ValueError('Digest queue is full')
+            if self.db.execute('SELECT count(*) FROM requests WHERE tenant=?', (str(tenant),)).fetchone()[0] >= 1024:
+                raise ValueError('Tenant digest queue is full')
+            if self.db.execute('SELECT count(*) FROM requests WHERE tenant=? AND lease=?', (str(tenant),str(lease))).fetchone()[0] >= 128:
+                raise ValueError('Lease digest queue is full')
             self.db.execute('INSERT INTO requests(id,tenant,lease,meters) VALUES(?,?,?,?)',
                             (identifier, str(tenant), str(lease), json.dumps(meters)))
         return identifier
+
+    def discard_unstarted(self, identifier):
+        with self.db:
+            self.db.execute('DELETE FROM requests WHERE id=? AND complete=0 AND NOT EXISTS(SELECT 1 FROM batches WHERE request=?)', (identifier,identifier))
 
     def finish(self, identifier, tokens):
         with self.db:
@@ -144,6 +150,9 @@ class DigestQueue:
                 continue
             with self.db:
                 self.db.execute('UPDATE batches SET sent=1 WHERE request=? AND meter=?', (identifier, meter))
+                if not self.db.execute('SELECT 1 FROM batches WHERE request=? AND sent=0', (identifier,)).fetchone():
+                    self.db.execute('DELETE FROM batches WHERE request=?', (identifier,))
+                    self.db.execute('DELETE FROM requests WHERE id=? AND complete=1', (identifier,))
 
     def close(self):
         self.db.close()
