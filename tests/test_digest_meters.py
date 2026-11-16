@@ -238,3 +238,17 @@ async def test_refused_host_does_not_block_drain(http_client,tenant_headers,app,
     response=await http_client.post(path,headers=(_ir if purpose=='ir' else _renter)(tenant_headers),json={'lease_id':str(lease),'messages':[{'role':'user','content':'hello'}]})
     assert response.status_code==409,response.text
     assert queue.drained(tenant_id,lease)
+
+
+async def test_local_serialization_failure_never_sends_to_host():
+    import httpx
+    from hypermesh_gateway_service.chat import proxy_chat
+    from fastapi import HTTPException
+    send=AsyncMock()
+    async with httpx.AsyncClient() as client:
+        client.send=send
+        with pytest.raises(HTTPException) as error:
+            await proxy_chat(lease_id=uuid.uuid4(),payload={'temperature':float('inf')},
+                             client_address='192.0.2.1',runtime_client=client)
+    assert error.value.count_not_started is True
+    send.assert_not_awaited()

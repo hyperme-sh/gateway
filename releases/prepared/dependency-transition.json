@@ -100,7 +100,7 @@
     },
     "hypermesh_gateway_service/chat.py": {
       "before_sha256": "0453f76d5871962f5e93b44b70f6de6425edae5c01de6c186a7ac70af0823029",
-      "after_sha256": "155bd4cf73db95cf36e143d3f2a882fbe36007f46f0054e9acdccaed63f9da28",
+      "after_sha256": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
       "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
       "regression_test": "tests/test_digest_meters.py"
     },

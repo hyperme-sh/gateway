@@ -144,7 +144,12 @@ async def proxy_chat(
         owned = httpx.AsyncClient(timeout=chat_timeout())
         client = owned
     try:
-        request = client.build_request("POST", url, json=body)
+        try:
+            request = client.build_request("POST", url, json=body)
+        except (ValueError, TypeError):
+            if owned is not None:
+                await owned.aclose()
+            raise unstarted_error("invalid_request_body") from None
         response = await client.send(request, stream=True)
     except httpx.HTTPError as exc:
         if owned is not None:

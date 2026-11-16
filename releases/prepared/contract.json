@@ -8,7 +8,7 @@
     "hypermesh_gateway_service/account_owners.py": "aba392940a83ec8b547047a5b379a1e839b0ba9d7de8f5749b828a260234c9ee",
     "hypermesh_gateway_service/app.py": "a4100f57c60c038ae58db340b3b7316969beefcd1b08ef483155a08914a51d1e",
     "hypermesh_gateway_service/body_limit.py": "8f8049a92a64100eee54885b1c440b2f5e870dd961583a0daacb1008027d02eb",
-    "hypermesh_gateway_service/chat.py": "155bd4cf73db95cf36e143d3f2a882fbe36007f46f0054e9acdccaed63f9da28",
+    "hypermesh_gateway_service/chat.py": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
     "hypermesh_gateway_service/classify.py": "30fe5d2ccc50152d6741a376c8c10f55a49c0d5983908dc502d618b7629c2b2a",
     "hypermesh_gateway_service/completions_signal.py": "688a1d5254d746ff9a0e3dbf4555769c43663a974fd78ab2e8e9371a583a31b9",
     "hypermesh_gateway_service/control_plane.py": "2e8bb30e0af410cf228dd92740a520f2078f7e20903f707798a53dcf78f3d266",
