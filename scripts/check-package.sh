@@ -65,7 +65,7 @@ uv export --frozen "${export_options[@]}" --no-emit-project --format requirement
 uv venv --python 3.13 "$scratch/venv"
 uv pip sync --python "$scratch/venv/bin/python" "$scratch/requirements.txt"
 if (( ${#fixture_wheels[@]} )); then
-  uv pip install --no-config --python "$scratch/venv/bin/python" --no-deps "${fixture_wheels[@]}" "$scratch"/dist/*.whl
+  bash scripts/install-qualified.sh "$scratch/venv/bin/python" "$scratch"/dist/*.whl
 else
 uv pip uninstall --python "$scratch/venv/bin/python" controlplane-core controlplane-api controlplane-tenancy controlplane-identity controlplane-db controlplane-events operator-ban-store hypermesh-ticket
 uv pip install --python "$scratch/venv/bin/python" --overrides "$scratch/requirements.txt" "$scratch"/dist/*.whl
@@ -86,6 +86,7 @@ uv pip install --no-config --python "$scratch/venv/bin/python" --no-deps --reins
 
 # Bind the declared candidate to the bytes exercised by every consumer.
 python3 scripts/export_release_contract.py "$scratch"/dist/*.whl --output "$scratch/contract"
+cat "$scratch/contract/contract.json" "$scratch/contract/evidence.json"
 python3 scripts/verify_release_candidate.py releases/prepared/release.json "$scratch/contract/contract.json" "$scratch/contract/evidence.json" hypermesh-gateway
 python3 scripts/export_release_contract.py "$scratch"/rebuilt/*.whl --output "$scratch/rebuilt-contract"
 cmp "$scratch/contract/contract.json" "$scratch/rebuilt-contract/contract.json"
