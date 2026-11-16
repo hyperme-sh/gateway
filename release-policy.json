@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "repository": "hyperme-sh/hypermesh-gateway",
+  "repository": "hyperme-sh/gateway",
   "component": "hypermesh-gateway",
   "line": "0.1",
   "version_files": [

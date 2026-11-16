@@ -60,7 +60,7 @@ jobs:
       digest: ${{ steps.registry.outputs.digest }}
     steps:
       - id: registry
-        uses: hyperme-sh/.github/actions/publish-gateway-runtime@2a17fd00ae67ecb340e59918ee45c8c409048bbc
+        uses: hyperme-sh/.github/actions/publish-gateway-runtime@ac3729ba016bceea1425e11bdba6a4753fda9bf1
         with:
           cache-key: ${{ needs.package.outputs.cache-key }}
           archive-sha256: ${{ needs.package.outputs.archive-sha256 }}
@@ -95,7 +95,7 @@ jobs:
             echo "Superseded by $current" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
-          repo="ghcr.io/${GITHUB_REPOSITORY,,}/runtime"
+          repo="ghcr.io/hyperme-sh/hypermesh-gateway/runtime"
           export DOCKER_CONFIG=$(mktemp -d "$RUNNER_TEMP/test-channel.XXXXXX")
           trap 'rm -rf -- "$DOCKER_CONFIG"' EXIT
           printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin

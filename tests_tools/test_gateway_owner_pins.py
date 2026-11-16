@@ -32,12 +32,12 @@ def test_snapshot_sits_beside_the_workflow_and_names_the_pins() -> None:
     hypermesh = pins["hypermesh-service"]
     payment = pins["payment-service"]
     gateway = pins["hypermesh-gateway"]
-    assert hypermesh.repository == "hyperme-sh/hypermesh-plane"
+    assert hypermesh.repository == "hyperme-sh/plane"
     assert hypermesh.source_sha == "a6f4c2fd1bb447072fc8321a283037b12be483e3"
     assert hypermesh.built_at == "2026-11-05T16:13:35Z"
     assert payment.repository == "hyperme-sh/payment-service"
     assert payment.source_sha == "da3ca7d4cc8541747835ff06ce1a2e66e3f2299a"
-    assert gateway.repository == "hyperme-sh/hypermesh-gateway"
+    assert gateway.repository == "hyperme-sh/gateway"
     assert gateway.source_sha == "e6b6a4662cfdcd975ff9d4820b565c30545c39cf"
     assert gateway.built_at == "2026-11-05T18:25:22Z"
     assert owners.lookup_pin(pins, "marketplace-service").service == "marketplace"
@@ -46,7 +46,7 @@ def test_snapshot_sits_beside_the_workflow_and_names_the_pins() -> None:
 def test_pin_matches_source_sha_and_rejects_a_disagreeing_stamp() -> None:
     pin = owners.OwnerPin(
         "hypermesh-service",
-        "hyperme-sh/hypermesh-plane",
+        "hyperme-sh/plane",
         "a" * 40,
         built_at="2026-11-05T16:13:35Z",
         digest="sha256:" + "ab" * 32,
@@ -61,7 +61,7 @@ def test_runtime_document_overlays_the_candidate_sha() -> None:
     candidates = {
         "services": {
             "hypermesh-service": {
-                "repository": "hyperme-sh/hypermesh-plane",
+                "repository": "hyperme-sh/plane",
                 "source_sha": "c" * 40,
                 "compose_service": "hypermesh-service",
             }
@@ -70,7 +70,7 @@ def test_runtime_document_overlays_the_candidate_sha() -> None:
     runtime = {
         "services": {
             "hypermesh-service": {
-                "repository": "hyperme-sh/hypermesh-plane",
+                "repository": "hyperme-sh/plane",
                 "source_sha": "d" * 40,
                 "built_at": "2026-11-05T16:13:35Z",
             }
@@ -88,7 +88,7 @@ def test_gateway_document_is_a_single_service() -> None:
     pins = owners.pins_from_document(
         {
             "service": {
-                "repository": "hyperme-sh/hypermesh-gateway",
+                "repository": "hyperme-sh/gateway",
                 "source_sha": "e" * 40,
                 "built_at": "2026-11-05T18:25:22Z",
                 "image": "acrfybercg47.azurecr.io/hypermesh-gateway:test",
@@ -112,7 +112,7 @@ def test_live_infra_overlay_wins_and_a_failed_read_uses_the_snapshot() -> None:
             return 200, {
                 "services": {
                     "hypermesh-service": {
-                        "repository": "hyperme-sh/hypermesh-plane",
+                        "repository": "hyperme-sh/plane",
                         "source_sha": "c" * 40,
                     }
                 }
@@ -121,7 +121,7 @@ def test_live_infra_overlay_wins_and_a_failed_read_uses_the_snapshot() -> None:
             return 200, {
                 "services": {
                     "hypermesh-service": {
-                        "repository": "hyperme-sh/hypermesh-plane",
+                        "repository": "hyperme-sh/plane",
                         "source_sha": runtime_sha,
                         "built_at": "2026-11-05T16:13:35Z",
                     }
@@ -130,7 +130,7 @@ def test_live_infra_overlay_wins_and_a_failed_read_uses_the_snapshot() -> None:
         if "test-standalone-gateway.json" in url:
             return 200, {
                 "service": {
-                    "repository": "hyperme-sh/hypermesh-gateway",
+                    "repository": "hyperme-sh/gateway",
                     "source_sha": "e" * 40,
                 }
             }
@@ -196,7 +196,7 @@ def test_broken_snapshot_is_empty(tmp_path: Path) -> None:
 
 
 def test_channel_comparison_ignores_recorded_digest_and_refuses_other_tags():
-    pin = owners.OwnerPin("gateway", "hyperme-sh/hypermesh-gateway", "a" * 40,
+    pin = owners.OwnerPin("gateway", "hyperme-sh/gateway", "a" * 40,
                           image="ghcr.io/hyperme-sh/hypermesh-gateway/runtime:test")
     assert owners.pin_matches(pin, git_sha="b" * 40, image_reference=pin.image,
                               image_digest="sha256:" + "c" * 64)

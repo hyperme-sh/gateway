@@ -61,7 +61,7 @@ def _pins() -> dict:
     return {
         "hypermesh-service": owners.OwnerPin(
             "hypermesh-service",
-            "hyperme-sh/hypermesh-plane",
+            "hyperme-sh/plane",
             DEPLOYED,
         ),
         "payment-service": owners.OwnerPin(
@@ -144,7 +144,7 @@ def test_rollout_accepts_the_reviewed_owner_pins_after_a_rebuild() -> None:
         deadline_s=600,
     )
     assert result.status == "pass"
-    assert result.detail == f"deployed revision {DEPLOYED} is the hyperme-sh/hypermesh-plane test pin"
+    assert result.detail == f"deployed revision {DEPLOYED} is the hyperme-sh/plane test pin"
     assert result.deployed == DEPLOYED
     assert result.expected == EXPECTED
     assert plane.calls == [("GET", "/api/v1/hypermesh/ready"), ("GET", "/versions")]
