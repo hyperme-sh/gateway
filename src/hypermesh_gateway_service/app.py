@@ -15,6 +15,7 @@ from controlplane_api.health import router as health_router
 from controlplane_api.version import router as version_router
 
 from hypermesh_gateway_service.retained_privacy import router as privacy_router
+from hypermesh_gateway_service.phone_routes import router as phone_router, open_phone_peers
 from hypermesh_gateway_service.body_limit import BodyLimitMiddleware
 from hypermesh_gateway_service.classify import Classifier, resolve_classifier
 from hypermesh_gateway_service.errors import (
@@ -92,6 +93,7 @@ def create_app(
         configure_logging()
         app.state.control_plane = resolve_control_plane(control_plane)
         async with AsyncExitStack() as owners:
+            await owners.enter_async_context(open_phone_peers(app.state))
             from hypermesh_gateway_service.account_ledger import resolve_ledger
             app.state.account_ledger = await asyncio.to_thread(resolve_ledger)
             from hypermesh_gateway_service.account_owners import open_owners
@@ -225,6 +227,7 @@ def create_app(
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(version_router)
     app.include_router(hmg_router, prefix="/api/v1")
+    app.include_router(phone_router, prefix="/api/v1")
     app.include_router(verb_router, prefix="/api/v1")
     app.include_router(openai_router)
     from hypermesh_gateway_service.account_closure import router as closure_router

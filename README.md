@@ -48,6 +48,10 @@ Caller session (model pin, routing, prompt text, attachments, frames) is per ten
 
 ## How it works
 
+The separately configured [phone peer door](docs/phone-peers.md) accepts only
+Plane bootstrap requests backed by a current AIuditor grant. It uses a dedicated
+interface with expiring Conductor-only forwarding, and is disabled by default.
+
 The control plane assigns a gateway and a host, signs a lease ticket, and records the WireGuard tunnel. Ticket verification comes from the separate [`hypermesh-ticket`](https://github.com/hyperme-sh/hypermesh-ticket) package (the exact revision is pinned in `pyproject.toml`). This repository does not vendor control-plane service code.
 
 On a timer the gateway pulls tickets and tunnels for each watched tenant, caches them, and applies one WireGuard peer per host on interface `wg-hm`. A completion request then:

@@ -40,9 +40,9 @@
   "consumer_adaptations": {
     "hypermesh_gateway_service/app.py": {
       "before_sha256": "34ff191285b498687225b5c7aa597e747530b15d7109879a36de7a77d1e269ec",
-      "after_sha256": "15726ace565ca3fc6e430c66e8b60b4afff881f147f40e6ad35d321ba76fa1d1",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
+      "after_sha256": "383bf0fd0168fd519bd490e6c31a3e5a75e8743f40d4ccf0da9ed735f86d914a",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
     },
     "hypermesh_gateway_service/posture.py": {
       "before_sha256": "d4adb4ee599c64af597e2eec69ddb62a496f36dd619c02a686253475eab727ec",
@@ -217,6 +217,21 @@
       "sha256": "500937cd4c37b5adc489cb65caf24a2d0b079bcfc00b67169bc166539f4a426c",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
+    },
+    "hypermesh_gateway_service/phone_mesh.py": {
+      "sha256": "7f5d769796dbb0fd14ca7004106e94b9d99dd54930f386141b62a865fcfb0d21",
+      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
+    },
+    "hypermesh_gateway_service/phone_kernel.py": {
+      "sha256": "cc29322624d1e58188c997c8f62a876ef9e0652db122494f026278f73d1471c7",
+      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
+    },
+    "hypermesh_gateway_service/phone_routes.py": {
+      "sha256": "a7a01ee75a0e12e3724ef3d2fa307d11ac900ddded764a59e59371d84f8a7f65",
+      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
     }
   },
   "removed_requirements": [
