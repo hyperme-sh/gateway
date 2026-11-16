@@ -279,9 +279,9 @@ async def test_verified_counts_hidden_once_and_durable_recovery_before_retire(se
         ("recover", "billable", 21),
         ("runtime", "previous_sha256", "1" * 64),
         ("runtime", "sequence", 2),
-        ("runtime", "epoch", str(uuid.uuid4())),
-        ("runtime", "start_id", str(uuid.uuid4())),
-        ("runtime", "batch_id", str(uuid.uuid4())),
+        ("runtime", "epoch", "00000000-0000-4000-8000-000000000001"),
+        ("runtime", "start_id", "00000000-0000-4000-8000-000000000002"),
+        ("runtime", "batch_id", "00000000-0000-4000-8000-000000000003"),
     ],
 )
 async def test_conflicting_authority_and_runtime_never_retire(
