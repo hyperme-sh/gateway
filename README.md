@@ -379,8 +379,13 @@ settle and continue to block draining. Completed and disputed repair records mov
 atomically to retained count-only history after guest acknowledgement, freeing
 active queue capacity while preserving replay and dispute status. Readback after
 retirement checks Plane again. No prompts, outputs or private keys are retained.
-Each tenant reserves up to 4,096 histories of at most 1 MiB; exhaustion refuses new
-admission without deleting history. Retention changes need a separate owner slice.
+Each renter organization has a separate 4,096-entry local history budget, with
+at most 1 MiB per entry. At capacity, the oldest completed local copies are
+reclaimed; Plane keeps the canonical records. Pending requests and disputed
+archives are never reclaimed. An organization whose unresolved work fills its
+budget is refused without consuming another organization's allowance. Repair of
+a completed ID whose local copy was reclaimed returns unresolved/unknown locally;
+its canonical history remains available through Plane's authenticated history API.
 
 Replies report `recovered` (`pending: false`), `disputed`, `missing_history`, or
 `legacy_unverified` (`pending: true`). Missing/conflicting records, unavailable

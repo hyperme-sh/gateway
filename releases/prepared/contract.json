@@ -40,7 +40,7 @@
     "hypermesh_gateway_service/trusted_meter/__init__.py": "73ca7617d508eb4aa0a83ce7be2f63ac52937c59d9c9b04ba063aa2881b07b4c",
     "hypermesh_gateway_service/trusted_meter/authority.py": "aa28893d92924eeb2eb4cefadedacbcf716a7616b4a1de89df38c56e4f0e0767",
     "hypermesh_gateway_service/trusted_meter/client.py": "31a393bc000864cad21e64bc253287ceaae7c9de16ff520afdb404be4b5f0189",
-    "hypermesh_gateway_service/trusted_meter/journal.py": "1ce8b477d76dcee295d81b1fbd22b7869a6c1e168a16f09c473d9e18754dfe81",
+    "hypermesh_gateway_service/trusted_meter/journal.py": "48ecadccd97ce45fa6b0ad985b9afc698f867ef76c2f4ffdff7d069ff6ca7c34",
     "hypermesh_gateway_service/trusted_meter/policy.py": "80c1e59dc49f9dee45e55640414b5aa4dc3a52edce89cb9ab7441002e550922e",
     "hypermesh_gateway_service/trusted_meter/recovery.py": "500937cd4c37b5adc489cb65caf24a2d0b079bcfc00b67169bc166539f4a426c",
     "hypermesh_gateway_service/trusted_meter/transport.py": "35a5f4c20469d88f5599602b99f6221b89072e1b5d19b8495ae13371d94c7ab5",

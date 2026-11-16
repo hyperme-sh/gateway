@@ -463,3 +463,55 @@ def test_retired_disputes_free_active_capacity_but_block_drain(setup):
     assert s.q.db.execute("SELECT count(*) FROM trusted_repairs").fetchone()[0] == 300
     assert not s.q.drained(s.tenant, s.lease)
     assert s.q.drained(str(uuid.uuid4()), s.lease)
+
+
+def test_retention_isolated_by_organization_and_reclaims_only_completed(
+    setup, monkeypatch
+):
+    from hypermesh_gateway_service.trusted_meter import journal
+
+    s = setup
+    monkeypatch.setattr(journal, "MAX_ORGANIZATION_HISTORY", 2)
+    s.q.discard_unstarted(s.batch)
+
+    def add(org, phase, retired=True):
+        batch = s.q.begin(s.tenant, s.lease, ["token_digest_count"], organization=org)
+        state = {
+            "binding": s.binding,
+            "batch_id": batch,
+            "phase": phase,
+            "recovery": {"signed_owner": "unit"},
+        }
+        s.consumer.journal.save(batch, state)
+        if retired:
+            s.consumer.journal.retired(batch)
+        return batch
+
+    unresolved = add("org-a", "disputed")
+    complete = add("org-a", "recovered")
+    replacement = add("org-a", "recovered")
+    assert not s.q.db.execute(
+        "SELECT 1 FROM trusted_repairs WHERE id=?", (complete,)
+    ).fetchone()
+    assert s.q.db.execute(
+        "SELECT 1 FROM trusted_repairs WHERE id=?", (unresolved,)
+    ).fetchone()
+    # Another organization gets its own allocation despite org-a being full.
+    other = add("org-b", "disputed")
+    assert (
+        s.q.db.execute(
+            "SELECT organization FROM trusted_repairs WHERE id=?", (other,)
+        ).fetchone()[0]
+        == "org-b"
+    )
+    add("org-a", "disputed")  # Reclaims the completed replacement, not a dispute.
+    assert not s.q.db.execute(
+        "SELECT 1 FROM trusted_repairs WHERE id=?", (replacement,)
+    ).fetchone()
+    with pytest.raises(Refusal, match="capacity"):
+        add("org-a", "admitted", retired=False)
+    assert s.q.db.execute(
+        "SELECT 1 FROM trusted_repairs WHERE id=?", (other,)
+    ).fetchone()
+    assert not s.q.drained(s.tenant, s.lease)
+    assert add("org-b", "recovered")

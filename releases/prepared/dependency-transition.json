@@ -194,9 +194,9 @@
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/trusted_meter/journal.py": {
-      "sha256": "1ce8b477d76dcee295d81b1fbd22b7869a6c1e168a16f09c473d9e18754dfe81",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
+      "sha256": "48ecadccd97ce45fa6b0ad985b9afc698f867ef76c2f4ffdff7d069ff6ca7c34",
+      "reason": "Consume verified runtime counts over an authenticated guest channel; preserve pending work and owner settlement authority.",
+      "regression_test": "tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/trusted_meter/policy.py": {
       "sha256": "80c1e59dc49f9dee45e55640414b5aa4dc3a52edce89cb9ab7441002e550922e",
