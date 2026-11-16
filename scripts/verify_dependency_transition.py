@@ -37,7 +37,10 @@ def verify(before_path, after_path, transition_path, fixture_path):
         require(old.url and old.url.startswith('git+https://github.com/hyperme-sh/'), 'Only private Git pins can transition')
         require(old.extras == new.extras and str(old.marker) == str(new.marker) and old.specifier == new.specifier, 'Changed dependency shape')
         record = records[name]
-        require(new.url == old.url.rsplit('@', 1)[0] + '@' + record['dependency_revision'], 'Target differs from qualified fixture revision')
+        repository = old.url.rsplit('@', 1)[0]
+        if name == 'hypermesh-ticket' and repository == 'git+https://github.com/hyperme-sh/hypermesh-ticket.git':
+            repository = 'git+https://github.com/hyperme-sh/ticket.git'
+        require(new.url == repository + '@' + record['dependency_revision'], 'Target differs from qualified fixture revision')
         require(requirements.count(change['before']) == 1, 'Transition source missing or ambiguous')
         requirements[requirements.index(change['before'])] = change['after']
     for removal in transition.get('removed_requirements', []):
