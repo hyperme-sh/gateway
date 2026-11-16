@@ -64,6 +64,11 @@ class Consumer:
         self.guest_factory = Guest
         self.attest = policy.attest
 
+    async def repair(self, tenant, lease, batch, gateway, cached=None):
+        from .recovery import repair
+
+        return await repair(self, tenant, lease, batch, gateway, cached)
+
     async def start(self):
         await self.relay.start()
 
@@ -265,6 +270,7 @@ class Consumer:
                 admission=admission,
                 phase="admitting",
                 owner_key=config.owner_key,
+                guest_address=str(cached.client_address),
             )
             self.journal.save(batch, state)
             _, admitted = await self.owner(context, "admit", admission)

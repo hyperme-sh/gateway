@@ -150,7 +150,7 @@ class Guest:
                     raise Refusal("runtime_key_type")
                 public = key.public_bytes_raw().hex()
                 if self.runtime_key is None:
-                    if path != "/channels/challenge":
+                    if path not in {"/channels/challenge", "/history/channels/challenge"}:
                         raise Refusal("channel_uninitialized")
                     self.runtime_key = public
                 if public != self.runtime_key:

@@ -78,6 +78,7 @@ class DigestQueue:
                 quantity INTEGER NOT NULL, sent INTEGER NOT NULL DEFAULT 0, attempts INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY(request,meter));
             CREATE TABLE IF NOT EXISTS fences (tenant TEXT, lease TEXT, PRIMARY KEY(tenant,lease));
+            CREATE TABLE IF NOT EXISTS trusted_repairs (id TEXT PRIMARY KEY, tenant TEXT NOT NULL, lease TEXT NOT NULL, state TEXT NOT NULL);
         ''')
 
         if 'attempts' not in {r[1] for r in self.db.execute('PRAGMA table_info(batches)')}:
@@ -131,6 +132,8 @@ class DigestQueue:
         return bool(self.db.execute('SELECT 1 FROM fences WHERE tenant=? AND lease=?', (str(tenant), str(lease))).fetchone())
 
     def drained(self, tenant, lease):
+        if self.db.execute("SELECT 1 FROM trusted_repairs WHERE tenant=? AND lease=? AND json_extract(state,'$.phase')='disputed' LIMIT 1", (str(tenant), str(lease))).fetchone():
+            return False
         return not self.db.execute('''SELECT 1 FROM requests r WHERE tenant=? AND lease=?
             AND (complete=0 OR EXISTS(SELECT 1 FROM batches b WHERE b.request=r.id AND sent=0))''',
             (str(tenant), str(lease))).fetchone()

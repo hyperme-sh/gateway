@@ -30,7 +30,7 @@ class Policy(Wire):
     issuer_key: Digest
     issuer_command: Binary
     verifier: Binary
-    profiles: dict[str, Profile] = Field(min_length=1, max_length=1024)
+    profiles: dict[str, Profile] = Field(max_length=1024)
     product: str = Field(pattern=r"^(Milan|Genoa|Turin)$")
     minimum_tcb: int = Field(strict=True, gt=0, lt=2**64)
     minimum_launch_tcb: int = Field(strict=True, gt=0, lt=2**64)
@@ -58,7 +58,7 @@ class Policy(Wire):
         return self
 
 
-def configured():
+def configured_history():
     path = os.environ.get("HYPERMESH_TRUSTED_METER_CONFIG")
     if not path:
         raise Refusal("trusted_meter_unconfigured")
@@ -67,6 +67,11 @@ def configured():
     if len(raw) > 1024 * 1024:
         raise Refusal("policy_oversized")
     policy = Policy.model_validate(decode(raw))
+    return policy
+
+
+def configured():
+    policy = configured_history()
     if time.time() >= policy.policy_expires_at:
         raise Refusal("vendor_policy_expired")
     return policy

@@ -2,8 +2,9 @@
 
 Gateway #70 consumes the measured CPU protocol from Host #217 and the durable
 owner protocol from Plane #166. It is disabled unless digest metering is
-explicitly configured. Gateway #69 owns interrupted-request recovery, archive
-retrieval/dispute retirement, and restart reconciliation. Infra #1638 owns the
+explicitly configured. Gateway #69 implements interrupted-request recovery, archive
+retrieval/dispute retirement, and restart reconciliation using Plane #169 and
+Host #220. See [the repair endpoint and retained-history contract](../README.md#interrupted-trusted-counts). Infra #1638 owns the
 independent issuer, verifier distribution, approved profiles, deployment
 configuration and scheduled qualification. This source change activates none
 of those capabilities.
@@ -34,8 +35,8 @@ remain unchanged.
 Gateway creates an ephemeral Ed25519 TLS key at startup. A dedicated TLS 1.3
 relay uses the same key. Each guest connection verifies the attested server key
 before sending a sensitive body; certificate names and dates do not grant
-execution authority. Only the initial empty channel challenge can discover an
-unverified key. Plane signs the complete scope and fresh channel nonce, and the
+execution authority. Only the initial channel challenge can discover an unverified key. Historical
+challenges send only the batch identity and original public runtime key. Plane signs the complete scope and fresh channel nonce, and the
 guest verifies possession of the Gateway key and its protected-clock window.
 
 Before inference, Gateway validates the frozen Plane binding against the
@@ -70,8 +71,9 @@ reconciliation belongs to #69; they are not upgraded to trusted quantities.
 
 `HYPERMESH_DIGEST_METERS_ENABLED` remains `false` by default. Enabling it
 requires a durable `HYPERMESH_DIGEST_QUEUE_PATH` and
-`HYPERMESH_TRUSTED_METER_CONFIG` naming a bounded JSON policy file. Missing or
-expired configuration refuses startup or new work. The policy schema is
+`HYPERMESH_TRUSTED_METER_CONFIG` naming a bounded JSON policy file. Missing configuration refuses startup. Expired execution policy or an empty
+profile registry refuses new work; historical repair can still use the configured
+owner trust without restoring execution. The policy schema is
 `trusted_meter/policy.py:Policy`:
 
 - `owner_key`, `issuer`, `issuer_key`: independently provisioned public trust.

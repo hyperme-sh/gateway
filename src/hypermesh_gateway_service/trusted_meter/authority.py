@@ -42,6 +42,9 @@ def owner_reply(raw, key, operation, payload, tenant, lease, gateway):
 
 
 PATHS = {
+    "history-read": "history/read",
+    "history-channel": "history/channels",
+    "history-recover": "history/recover",
     "challenge": "challenge",
     "channel": "channels",
     "register": "sessions",

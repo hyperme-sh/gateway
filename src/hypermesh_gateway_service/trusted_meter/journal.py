@@ -10,6 +10,9 @@ class Journal:
         queue.db.execute(
             "CREATE TABLE IF NOT EXISTS trusted_requests (id TEXT PRIMARY KEY, state TEXT NOT NULL)"
         )
+        queue.db.execute(
+            "CREATE TABLE IF NOT EXISTS trusted_repairs (id TEXT PRIMARY KEY, tenant TEXT NOT NULL, lease TEXT NOT NULL, state TEXT NOT NULL)"
+        )
         queue.db.commit()
 
     def save(self, batch, state):
@@ -17,6 +20,19 @@ class Journal:
         if len(raw.encode()) > 1024 * 1024:
             raise Refusal("trusted_state_oversized")
         with self.queue.db:
+            if not self.queue.db.execute(
+                "SELECT 1 FROM trusted_requests WHERE id=?", (batch,)
+            ).fetchone():
+                tenant = state["binding"]["tenant_id"]
+                retained = self.queue.db.execute(
+                    "SELECT count(*) FROM trusted_repairs WHERE tenant=?", (tenant,)
+                ).fetchone()[0]
+                active = self.queue.db.execute(
+                    "SELECT count(*) FROM trusted_requests t JOIN requests r ON r.id=t.id WHERE r.tenant=?",
+                    (tenant,),
+                ).fetchone()[0]
+                if retained + active >= 4096:
+                    raise Refusal("trusted_history_capacity")
             if not self.queue.db.execute(
                 "SELECT 1 FROM requests WHERE id=?", (batch,)
             ).fetchone():
@@ -33,5 +49,29 @@ class Journal:
             ).fetchone()
             if not row or not json.loads(row[0]).get("recovery"):
                 raise Refusal("recovery_not_committed")
+            state = json.loads(row[0])
+            binding = state["binding"]
+            self.queue.db.execute(
+                "INSERT INTO trusted_repairs VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET state=excluded.state",
+                (batch, binding["tenant_id"], binding["lease_id"], row[0]),
+            )
             self.queue.db.execute("DELETE FROM trusted_requests WHERE id=?", (batch,))
             self.queue.db.execute("DELETE FROM requests WHERE id=?", (batch,))
+
+    def load(self, tenant, lease, batch):
+        row = self.queue.db.execute(
+            "SELECT t.state FROM requests r LEFT JOIN trusted_requests t ON t.id=r.id "
+            "WHERE r.tenant=? AND r.lease=? AND r.id=?",
+            (str(tenant), str(lease), str(batch)),
+        ).fetchone()
+        if row is None:
+            archived = self.queue.db.execute(
+                "SELECT state FROM trusted_repairs WHERE tenant=? AND lease=? AND id=?",
+                (str(tenant), str(lease), str(batch)),
+            ).fetchone()
+            if archived:
+                value = json.loads(archived[0])
+                value["locally_retired"] = True
+                return value
+            raise Refusal("unknown_pending_request")
+        return json.loads(row[0]) if row[0] else None
