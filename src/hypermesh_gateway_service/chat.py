@@ -90,6 +90,8 @@ class ProxiedChat:
     response: httpx.Response
     _owned_client: httpx.AsyncClient | None = None
     bytes_out: int = 0
+    count_parser: Any = None
+    count_complete: bool = False
     _closed: bool = field(default=False, init=False, repr=False)
 
     @property
@@ -101,7 +103,10 @@ class ProxiedChat:
             async for chunk in self.response.aiter_bytes():
                 if chunk:
                     self.bytes_out += len(chunk)
+                    if self.count_parser is not None:
+                        self.count_parser.feed(chunk)
                     yield chunk
+            self.count_complete = True
         finally:
             await self.aclose()
 
@@ -114,6 +119,12 @@ class ProxiedChat:
             await self._owned_client.aclose()
 
 
+def unstarted_error(reason):
+    error = instance_not_ready(reason)
+    error.count_not_started = True
+    return error
+
+
 async def proxy_chat(
     *,
     lease_id: uuid.UUID,
@@ -122,7 +133,7 @@ async def proxy_chat(
     runtime_client: httpx.AsyncClient | None = None,
 ) -> ProxiedChat:
     if not client_address:
-        raise instance_not_ready("no_tunnel_address")
+        raise unstarted_error("no_tunnel_address")
     url = f"http://{client_ip(client_address)}:{chat_upstream_port()}{CHAT_PATH}"
     logger.info("proxy chat lease_id=%s", lease_id)
     body = dict(payload)
@@ -133,22 +144,30 @@ async def proxy_chat(
         owned = httpx.AsyncClient(timeout=chat_timeout())
         client = owned
     try:
-        request = client.build_request("POST", url, json=body)
+        try:
+            request = client.build_request("POST", url, json=body)
+        except (ValueError, TypeError):
+            if owned is not None:
+                await owned.aclose()
+            raise unstarted_error("invalid_request_body") from None
         response = await client.send(request, stream=True)
-    except httpx.HTTPError:
+    except httpx.HTTPError as exc:
         if owned is not None:
             await owned.aclose()
         logger.info("proxy chat upstream unreachable lease_id=%s", lease_id)
-        raise instance_not_ready("host_unreachable") from None
+        error = instance_not_ready("host_unreachable")
+        error.count_not_started = isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout))
+        raise error from None
     if response.status_code >= 400:
         upstream_status = response.status_code
-        await response.aread()
         await response.aclose()
         if owned is not None:
             await owned.aclose()
         # llama-server answers 503 while it is still loading the model.
         logger.info("proxy chat upstream status=%s lease_id=%s", upstream_status, lease_id)
-        raise instance_not_ready(f"host_status_{upstream_status}")
+        error = instance_not_ready(f"host_status_{upstream_status}")
+        error.count_not_started = upstream_status in {400,401,403,404,405,413,422,429,503}
+        raise error
     return ProxiedChat(response=response, _owned_client=owned)
 
 

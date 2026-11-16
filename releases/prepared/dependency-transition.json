@@ -40,9 +40,9 @@
   "consumer_adaptations": {
     "hypermesh_gateway_service/app.py": {
       "before_sha256": "34ff191285b498687225b5c7aa597e747530b15d7109879a36de7a77d1e269ec",
-      "after_sha256": "7c6768bf9c78002807e19b32bd4f5cabbfbf5d9b6a6d90fbe75c911b370285fb",
-      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration.",
-      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py"
+      "after_sha256": "a4100f57c60c038ae58db340b3b7316969beefcd1b08ef483155a08914a51d1e",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/posture.py": {
       "before_sha256": "d4adb4ee599c64af597e2eec69ddb62a496f36dd619c02a686253475eab727ec",
@@ -58,9 +58,9 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "361ecf7eea78cc48b29a54da00413edc29fe392bd95741dec79b5b49078e326f",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+      "after_sha256": "851342768fd3e1e0211e1b1ad17337c34efc32d714ce65fec006ba2b7ced48d7",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/wg.py": {
       "before_sha256": "4b88a9dca504b011643c396bbdb5117e7224cebae87bb9b9209ff533c1221d0c",
@@ -70,9 +70,9 @@
     },
     "hypermesh_gateway_service/control_plane.py": {
       "before_sha256": "d924d899fb8efd544d010933ce64fb2000855d180aac9a37dade866e36fb19cc",
-      "after_sha256": "181eb87b50127c9632109d2404f6c1b7bea7dfb56510ffff285b2bb25fb602d5",
-      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration.",
-      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py"
+      "after_sha256": "28f0d9092d67318865e1d1e6837d389452481b68db72af6c54a8592f24a3cb8f",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/receipts.py": {
       "before_sha256": "68c2a367c6ba8f0066efc34f34edee998bd991f08ce7efa6c7aa397332393544",
@@ -88,9 +88,9 @@
     },
     "hypermesh_gateway_service/tickets.py": {
       "before_sha256": "bc6aea3674efd7283ff5717479f47a7d430c449b7227aebff41618990926ae23",
-      "after_sha256": "94e3bc187e24487718c56e0e71f3cf81169d253e94412e96cbb86a2c956365d8",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+      "after_sha256": "a455ee1a77caaef8d1f1f7d1436cf25245ba45eb8f9f0f782cc12143f3be3422",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/body_limit.py": {
       "before_sha256": "0b6b0e1efcdd0d0602d3e5123b035d4a69650961e6a9559f07c3c509fccdf35c",
@@ -100,9 +100,9 @@
     },
     "hypermesh_gateway_service/chat.py": {
       "before_sha256": "0453f76d5871962f5e93b44b70f6de6425edae5c01de6c186a7ac70af0823029",
-      "after_sha256": "e896a17752da5aae2adaed7d751f4fb9502a7cf7b81a0b578e55253b8137a70a",
-      "reason": "Emit streaming tool identifiers once per choice and call.",
-      "regression_test": "tests/test_backlog_regressions.py"
+      "after_sha256": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/metrics.py": {
       "before_sha256": "9ad3996aa45c000d8bc851682c3feb4b154a281d9818abe4101b00c34bdaa5af",
@@ -172,6 +172,11 @@
       "sha256": "2ec316e11963d88f0a87f596ba5b4c1032d2c1bbe5504f9b2e40364b3880349e",
       "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration.",
       "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py"
+    },
+    "hypermesh_gateway_service/digest_meters.py": {
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py",
+      "sha256": "1d5fcbe6963f1b8872d45ecfb61acc454882a4f8fb89a6c019d0bd6bab3a18c4"
     }
   },
   "removed_requirements": [
