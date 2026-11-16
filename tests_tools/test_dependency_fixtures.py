@@ -67,8 +67,10 @@ def test_tampered_transitive_pin_rejected_even_with_updated_fixture_digest(root)
     wheel = p.parent/record['wheel']
     with zipfile.ZipFile(wheel) as z: files = {n:z.read(n) for n in z.namelist()}
     metadata, = [n for n in files if n.endswith('.dist-info/METADATA')]
-    api = next(r for r in manifest['dependencies'] if r['distribution']=='controlplane-identity')
-    files[metadata] = files[metadata].replace(api['dependency_revision'].encode(), b'a'*40)
+    import re
+    changed, count = re.subn(rb'(controlplane-identity\.git@)[a-f0-9]{40}', rb'\g<1>'+b'a'*40, files[metadata])
+    assert count == 1
+    files[metadata] = changed
     with zipfile.ZipFile(wheel,'w') as z:
         for n,b in files.items(): z.writestr(n,b)
     record['sha256'] = hashlib.sha256(wheel.read_bytes()).hexdigest()
