@@ -348,3 +348,11 @@ This verifies the private dependency manifest and wheel digests, then resolves t
 application wheel with explicit audited artifact overrides. CI uses this installer
 for external-wheel contracts; bare wheel installation without the qualified graph
 is not the supported contract for independently advancing shared libraries.
+
+### Trusted digest counts
+
+Digest leases use the [trusted runtime consumer](docs/trusted-meter.md), with
+independent workload/report verification, key-bound guest TLS and signed Plane
+count authority. Provider usage totals cannot create trusted charges. The
+feature remains default-off; Gateway #69 and Infra #1638 retain recovery and
+owning configuration work.

@@ -125,6 +125,25 @@ class HttpControlPlane:
                 or body.get('meters')!=sorted(meters)):
             raise RuntimeError('Count batch admission scope mismatch')
 
+    async def trusted_meter(self, tenant_id, lease_id, operation, payload):
+        from hypermesh_gateway_service.trusted_meter.authority import PATHS
+        from hypermesh_gateway_service.trusted_meter.transport import decode
+        from urllib.parse import urlsplit
+        if urlsplit(self._base).scheme != 'https':
+            raise ValueError('Trusted owner requires HTTPS')
+        tenant_id, lease_id = uuid.UUID(str(tenant_id)), uuid.UUID(str(lease_id))
+        async with httpx.AsyncClient(timeout=15, trust_env=False, follow_redirects=False) as client:
+            async with client.stream('POST', f'{self._base}/api/v1/hypermesh/leases/{lease_id}/trusted-meter/{PATHS[operation]}',
+                                     headers=self._headers(tenant_id), json=payload) as response:
+                if response.status_code != 200:
+                    raise RuntimeError('Trusted owner refused operation')
+                raw = bytearray()
+                async for chunk in response.aiter_bytes():
+                    raw.extend(chunk)
+                    if len(raw) > 4 * 1024 * 1024:
+                        raise ValueError('Owner reply exceeds limit')
+        return decode(raw)
+
     async def post_reading(self, tenant_id, lease_id, payload):
         async with httpx.AsyncClient(timeout=10, trust_env=False, follow_redirects=False) as client:
             response = await client.post(

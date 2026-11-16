@@ -92,7 +92,13 @@ async def test_drain_auth_scope_and_pending(tmp_path):
     with pytest.raises(HTTPException) as err:await drain_digest(req,lease)
     assert err.value.status_code==409
     q.finish(identifier,3)
-    assert (await drain_digest(req,lease))['drained'] is True
+    with pytest.raises(HTTPException) as err:await drain_digest(req,lease)
+    assert err.value.status_code==409
+    plane.post_reading.assert_not_awaited()
+    # Remove this isolated legacy fixture to exercise empty-queue auth scope.
+    with q.db:
+        q.db.execute('DELETE FROM batches')
+        q.db.execute('DELETE FROM requests')
     state.ticket_cache=SimpleNamespace(get=lambda t,l:None)
     assert (await drain_digest(req,lease))['drained'] is True
     state.ticket_cache=SimpleNamespace(get=lambda t,l:cached)
@@ -225,7 +231,7 @@ async def test_proxy_classifies_no_work_without_guessing(failure):
 
 
 @pytest.mark.parametrize('path,purpose',[('/v1/chat/completions','renter'),('/v1/ir/chat/completions','ir')])
-async def test_refused_host_does_not_block_drain(http_client,tenant_headers,app,tenant_id,tmp_path,monkeypatch,path,purpose):
+async def test_unconfigured_trusted_path_never_uses_ordinary_host(http_client,tenant_headers,app,tenant_id,tmp_path,monkeypatch,path,purpose):
     from dataclasses import replace
     from test_hypermesh_gateway import _signed_ticket,_ir,_renter
     from hypermesh_gateway_service import routes
@@ -236,7 +242,7 @@ async def test_refused_host_does_not_block_drain(http_client,tenant_headers,app,
     monkeypatch.setattr(routes,'_classifier',lambda request:SimpleNamespace(classify=lambda text:SimpleNamespace(decision='allow',prompt_class='benign',pack_version='unit')))
     monkeypatch.setattr(routes,'proxy_chat',AsyncMock(side_effect=unstarted_error('host_status_503')))
     response=await http_client.post(path,headers=(_ir if purpose=='ir' else _renter)(tenant_headers),json={'lease_id':str(lease),'messages':[{'role':'user','content':'hello'}]})
-    assert response.status_code==409,response.text
+    assert response.status_code==503,response.text
     assert queue.drained(tenant_id,lease)
 
 
@@ -312,13 +318,14 @@ async def test_run_paused_during_admission_never_reaches_host(http_client,tenant
     paused=False
     def gate(*args):
         if paused:raise HTTPException(409,'paused')
-    async def admit(*args,**kw):
+    async def execute(*args,**kw):
         nonlocal paused
         paused=True
+        args[-1]()
     monkeypatch.setattr(routes,'_gate_router_run',gate)
-    app.state.control_plane.admit_batch=admit
+    app.state.trusted_meter=SimpleNamespace(execute=execute)
     proxy=AsyncMock();monkeypatch.setattr(routes,'proxy_chat',proxy)
-    response=await http_client.post(path,headers=(_ir if purpose=='ir' else _renter)(tenant_headers),json={'lease_id':str(lease),'messages':[{'role':'user','content':'hello'}]})
+    response=await http_client.post(path,headers=(_ir if purpose=='ir' else _renter)(tenant_headers),json={'lease_id':str(lease),'messages':[{'role':'user','content':'hello'}],'max_tokens':16})
     assert response.status_code==409,response.text
     proxy.assert_not_awaited()
-    assert queue.drained(tenant_id,lease)
+    assert not queue.drained(tenant_id,lease)

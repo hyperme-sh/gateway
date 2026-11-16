@@ -102,6 +102,14 @@ def create_app(
             app.state.meter_queue = meter_queue or resolve_meter_queue(meter_persist_path)
             from hypermesh_gateway_service.digest_meters import configured
             app.state.digest_queue = configured()
+            app.state.trusted_meter = None
+            if app.state.digest_queue is not None:
+                owners.callback(app.state.digest_queue.close)
+                from hypermesh_gateway_service.trusted_meter.client import Consumer
+                from hypermesh_gateway_service.trusted_meter.policy import configured as trusted_policy
+                app.state.trusted_meter = Consumer(trusted_policy(), app.state.control_plane, app.state.digest_queue)
+                await app.state.trusted_meter.start()
+                owners.push_async_callback(app.state.trusted_meter.close)
             app.state.chat_quota = chat_quota or resolve_chat_quota()
             app.state.classifier = classifier or resolve_classifier()
             app.state.approval_inbox = resolve_approval_inbox(approval_inbox)
@@ -123,7 +131,7 @@ def create_app(
                         app.state.safety_recorder,
                     )
                     if app.state.digest_queue is not None:
-                        await app.state.digest_queue.flush(app.state.control_plane)
+                        await app.state.digest_queue.flush(app.state.control_plane, verified_only=True)
                     try:
                         await asyncio.wait_for(stop.wait(), timeout=refresh_s)
                         return
@@ -140,8 +148,6 @@ def create_app(
                     await task
                 except (asyncio.CancelledError, Exception):
                     pass
-                if app.state.digest_queue is not None:
-                    app.state.digest_queue.close()
 
     app = FastAPI(
         lifespan=lifespan,
