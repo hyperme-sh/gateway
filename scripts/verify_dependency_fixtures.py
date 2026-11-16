@@ -14,7 +14,7 @@ def pin(requirement):
     if not match:
         raise ValueError('Unsupported dependency pin')
     name, repo, revision, subdirectory = match.groups()
-    if repo != {'operator-ban-store':'user-service','spanopticon-models':'controlplane-models','spanopticon-tests':'controlplane-tests','controlplane-legacy-auth-bridge':'controlplane-identity'}.get(name,name) or subdirectory != {'operator-ban-store':'#subdirectory=core/user-service/contracts','user-service':'#subdirectory=core/user-service','controlplane-legacy-auth-bridge':'#subdirectory=compatibility'}.get(name):
+    if repo != {'hypermesh-ticket':'ticket','operator-ban-store':'user-service','spanopticon-models':'controlplane-models','spanopticon-tests':'controlplane-tests','controlplane-legacy-auth-bridge':'controlplane-identity'}.get(name,name) or subdirectory != {'operator-ban-store':'#subdirectory=core/user-service/contracts','user-service':'#subdirectory=core/user-service','controlplane-legacy-auth-bridge':'#subdirectory=compatibility'}.get(name):
         raise ValueError('Unexpected dependency owner or subdirectory')
     query = subdirectory[1:].replace('/', '%2F') + '&' if subdirectory else ''
     return name, f'https://github.com/hyperme-sh/{repo}.git?{query}rev={revision}#{revision}'
@@ -60,7 +60,7 @@ def verify(root):
         name = record['distribution']; revision = record['dependency_revision']
         if not re.fullmatch('[0-9a-f]{40}', revision) or record['artifact_revision'] != revision:
             raise ValueError('Fixture does not match dependency revision')
-        repo = {'operator-ban-store':'user-service','spanopticon-models':'controlplane-models','spanopticon-tests':'controlplane-tests','controlplane-legacy-auth-bridge':'controlplane-identity'}.get(name,name)
+        repo = {'hypermesh-ticket':'ticket','operator-ban-store':'user-service','spanopticon-models':'controlplane-models','spanopticon-tests':'controlplane-tests','controlplane-legacy-auth-bridge':'controlplane-identity'}.get(name,name)
         suffix = {'operator-ban-store':'#subdirectory=core/user-service/contracts','user-service':'#subdirectory=core/user-service','controlplane-legacy-auth-bridge':'#subdirectory=compatibility'}.get(name, '')
         _, source = pin(f'{name} @ git+https://github.com/hyperme-sh/{repo}.git@{revision}{suffix}')
         if locked[name]['source'] != {'git': source} or locked[name]['version'] != record['version']:
