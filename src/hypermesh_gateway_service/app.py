@@ -100,6 +100,8 @@ def create_app(
             seed_watched_tenants(app.state.ticket_cache)
             app.state.receipt_store = receipt_store or resolve_receipt_store(receipt_persist_path)
             app.state.meter_queue = meter_queue or resolve_meter_queue(meter_persist_path)
+            from hypermesh_gateway_service.digest_meters import configured
+            app.state.digest_queue = configured()
             app.state.chat_quota = chat_quota or resolve_chat_quota()
             app.state.classifier = classifier or resolve_classifier()
             app.state.approval_inbox = resolve_approval_inbox(approval_inbox)
@@ -120,6 +122,8 @@ def create_app(
                         app.state.meter_queue,
                         app.state.safety_recorder,
                     )
+                    if app.state.digest_queue is not None:
+                        await app.state.digest_queue.flush(app.state.control_plane)
                     try:
                         await asyncio.wait_for(stop.wait(), timeout=refresh_s)
                         return
@@ -136,6 +140,8 @@ def create_app(
                     await task
                 except (asyncio.CancelledError, Exception):
                     pass
+                if app.state.digest_queue is not None:
+                    app.state.digest_queue.close()
 
     app = FastAPI(
         lifespan=lifespan,

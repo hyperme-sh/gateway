@@ -14,6 +14,7 @@ from typing import Any, Protocol
 
 import httpx
 
+from hypermesh_gateway_service.digest_meters import selected as selected_digest_meters
 from hypermesh_gateway_service.tickets import CachedTicket, TicketPull
 
 
@@ -107,6 +108,17 @@ class HttpControlPlane:
         return uuid.UUID(body["gateway_id"])
 
 
+    async def post_reading(self, tenant_id, lease_id, payload):
+        async with httpx.AsyncClient(timeout=10, trust_env=False, follow_redirects=False) as client:
+            response = await client.post(
+                f"{self._base}/api/v1/hypermesh/leases/{lease_id}/usage",
+                headers=self._headers(tenant_id), json=payload)
+        if response.status_code != 200:
+            raise RuntimeError('Named reading refused')
+        result = response.json()
+        if not isinstance(result, dict) or result.get('id') != str(lease_id) or result.get('tenant_id') != str(tenant_id):
+            raise RuntimeError('Named reading acknowledgement mismatch')
+
     async def list_tunnels(self, tenant_id: uuid.UUID) -> list[GatewayTunnel]:
         async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.get(
@@ -181,6 +193,7 @@ class HttpControlPlane:
                     ),
                     catalog_admitted=bool(row.get("catalog_admitted")),
                     activated_at=_parse_dt(row.get("activated_at")),
+                    digest_meters=selected_digest_meters(row.get('digest_meters', [])),
                     renter_organization_id=uuid.UUID(str(row['renter_organization_id'])) if row.get('renter_organization_id') else None,
                 )
             )

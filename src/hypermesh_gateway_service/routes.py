@@ -915,6 +915,46 @@ def _not_ready_reason(
     return "peer_down"
 
 
+def _begin_digest(request, tenant, lease, cached):
+    meters = cached.digest_meters if cached else ()
+    if not meters:
+        return None
+    queue = getattr(request.app.state, 'digest_queue', None)
+    if queue is None:
+        raise HTTPException(503, 'Digest producer is not configured')
+    try:
+        return queue.begin(tenant, lease, meters)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+async def _finish_digest(request, identifier, proxied):
+    if identifier is None:
+        return
+    tokens = proxied.count_parser.finish() if proxied.count_complete else None
+    queue = request.app.state.digest_queue
+    queue.finish(identifier, tokens)
+    await queue.flush(_control(request))
+
+
+@router.post('/leases/{lease_id}/meter-drain')
+async def drain_digest(request: Request, lease_id: uuid.UUID):
+    _require_service_cred(request)
+    tenant = _tenant_id(request)
+    cached = _tickets(request).get(tenant, lease_id)
+    queue = getattr(request.app.state, 'digest_queue', None)
+    if queue is None or (not queue.fenced(tenant, lease_id) and (cached is None or not cached.digest_meters)):
+        raise HTTPException(409, 'Assigned digest lease required')
+    identity = await _control(request).gateway_identity(tenant)
+    if cached is not None and cached.assigned_gateway_id != identity:
+        raise HTTPException(403, 'Gateway assignment mismatch')
+    queue.fence(tenant, lease_id)
+    await queue.flush(_control(request), tenant=tenant, lease=lease_id)
+    if not queue.drained(tenant, lease_id):
+        raise HTTPException(409, 'Count requests are still pending')
+    return {'tenant_id':str(tenant), 'lease_id':str(lease_id), 'gateway_id':str(identity), 'drained':True}
+
+
 async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingResponse:
     grant, tenant_id, lease_id = await _open_door(request, body, ir=False)
     cache = _tickets(request)
@@ -985,9 +1025,10 @@ async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingRespo
     _gate_router_run(request, tenant_id, lease_id)
     reservation = _reserve_meter(request)
     try:
+        digest_id = _begin_digest(request, tenant_id, lease_id, cached)
         proxied = await proxy_chat(
             lease_id=lease_id,
-            payload=body.model_dump(mode="json"),
+            payload=(body.model_dump(mode="json") | ({"stream_options":{"include_usage":True}} if digest_id is not None and getattr(body, "stream", False) else {})),
             client_address=claims.client_address,
             runtime_client=runtime,
         )
@@ -996,7 +1037,12 @@ async def _chat(request: Request, body: ChatCompletionRequest) -> StreamingRespo
         raise
     _, _, handshakes = peer_counters(peer_key or "")
 
+    if digest_id is not None:
+        from hypermesh_gateway_service.digest_meters import Counts
+        proxied.count_parser = Counts("text/event-stream" in proxied.media_type)
+
     async def _meter(bytes_out: int) -> None:
+        await _finish_digest(request, digest_id, proxied)
         await report_session_metrics(
             _control(request),
             tenant_id,
@@ -1216,10 +1262,11 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
     runtime = getattr(request.app.state, "runtime_client", None)
     reservation = _reserve_meter(request)
     try:
+        digest_id = _begin_digest(request, tenant_id, lease_id, cached)
         _gate_router_run(request, tenant_id, lease_id)
         proxied = await proxy_chat(
             lease_id=lease_id,
-            payload=body.model_dump(mode="json"),
+            payload=(body.model_dump(mode="json") | ({"stream_options":{"include_usage":True}} if digest_id is not None and getattr(body, "stream", False) else {})),
             client_address=claims.client_address,
             runtime_client=runtime,
         )
@@ -1248,7 +1295,12 @@ async def _ir_chat(request: Request, body: ChatCompletionRequest):
     )
     _, _, handshakes = peer_counters(peer_key or "")
 
+    if digest_id is not None:
+        from hypermesh_gateway_service.digest_meters import Counts
+        proxied.count_parser = Counts("text/event-stream" in proxied.media_type)
+
     async def _meter(bytes_out: int) -> None:
+        await _finish_digest(request, digest_id, proxied)
         await report_session_metrics(
             _control(request),
             tenant_id,

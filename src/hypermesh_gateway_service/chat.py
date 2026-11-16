@@ -90,6 +90,8 @@ class ProxiedChat:
     response: httpx.Response
     _owned_client: httpx.AsyncClient | None = None
     bytes_out: int = 0
+    count_parser: Any = None
+    count_complete: bool = False
     _closed: bool = field(default=False, init=False, repr=False)
 
     @property
@@ -101,7 +103,10 @@ class ProxiedChat:
             async for chunk in self.response.aiter_bytes():
                 if chunk:
                     self.bytes_out += len(chunk)
+                    if self.count_parser is not None:
+                        self.count_parser.feed(chunk)
                     yield chunk
+            self.count_complete = True
         finally:
             await self.aclose()
 

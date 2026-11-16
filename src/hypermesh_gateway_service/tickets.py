@@ -40,6 +40,7 @@ class CachedTicket:
     catalog_admitted: bool = False
     activated_at: datetime | None = None
     renter_organization_id: uuid.UUID | None = None
+    digest_meters: tuple[str, ...] = ()
 
     @property
     def active(self) -> bool:
