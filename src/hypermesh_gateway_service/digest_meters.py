@@ -135,7 +135,11 @@ class DigestQueue:
             AND (complete=0 OR EXISTS(SELECT 1 FROM batches b WHERE b.request=r.id AND sent=0))''',
             (str(tenant), str(lease))).fetchone()
 
-    async def flush(self, plane, *, tenant=None, lease=None):
+    async def flush(self, plane, *, tenant=None, lease=None, verified_only=False):
+        if verified_only:
+            # Legacy provider totals cannot become trusted charges. Retain them
+            # for explicit reconciliation; normal trusted settlement uses Plane.
+            return
         rows = self.db.execute('''SELECT r.id,r.tenant,r.lease,b.meter,b.quantity FROM requests r
             JOIN batches b ON b.request=r.id WHERE b.sent=0 AND (? IS NULL OR r.tenant=?)
             AND (? IS NULL OR r.lease=?) ORDER BY b.attempts,r.rowid,b.meter LIMIT 100''',
