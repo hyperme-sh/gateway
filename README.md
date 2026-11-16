@@ -89,7 +89,7 @@ Python 3.13 and [uv](https://docs.astral.sh/uv/) 0.11.26. Dependencies are publi
 
 ```bash
 git clone https://github.com/hyperme-sh/gateway.git
-cd hypermesh-gateway
+cd gateway
 uv sync --frozen
 ```
 
