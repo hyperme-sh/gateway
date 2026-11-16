@@ -118,7 +118,16 @@ def _forbidden_identity(token: str) -> bool:
     return token.startswith((GATEWAY_SECRET_HEAD, DEVICE_SECRET_HEAD, SITE_TOKEN_HEAD, TICKET_PREFIX))
 
 
-def _decode_jwt_locally(
+def _decode_jwt_locally(token: str, *, validator: JwtValidator | None = None) -> dict[str, Any] | None:
+    claims = _decode_native_jwt(token, validator=validator)
+    # The five browser suites do not grant paid-router or bootstrap authority,
+    # even if a caller inherited an otherwise valid browser admission context.
+    if claims is not None and 'nightly_run' in claims:
+        return None
+    return claims
+
+
+def _decode_native_jwt(
     token: str,
     *,
     validator: JwtValidator | None = None,

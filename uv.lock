@@ -16,7 +16,7 @@ resolution-markers = [
 [manifest]
 overrides = [
     { name = "controlplane-events", git = "https://github.com/hyperme-sh/controlplane-events.git?rev=2a49f9af5f6c4dc9d6c4ddebc83c41d6331e2c87" },
-    { name = "controlplane-identity", git = "https://github.com/hyperme-sh/controlplane-identity.git?rev=a2cb7f055dced17f76e64009395ffb7599557a71" },
+    { name = "controlplane-identity", git = "https://github.com/hyperme-sh/controlplane-identity.git?rev=14355f230e15a5acf3b1283e87d5f65aceff35ba" },
 ]
 
 [[package]]
@@ -403,7 +403,7 @@ dependencies = [
 [[package]]
 name = "controlplane-identity"
 version = "0.15.0"
-source = { git = "https://github.com/hyperme-sh/controlplane-identity.git?rev=a2cb7f055dced17f76e64009395ffb7599557a71#a2cb7f055dced17f76e64009395ffb7599557a71" }
+source = { git = "https://github.com/hyperme-sh/controlplane-identity.git?rev=14355f230e15a5acf3b1283e87d5f65aceff35ba#14355f230e15a5acf3b1283e87d5f65aceff35ba" }
 dependencies = [
     { name = "eth-abi" },
     { name = "eth-account" },
@@ -996,7 +996,7 @@ requires-dist = [
     { name = "controlplane-api", git = "https://github.com/hyperme-sh/controlplane-api.git?rev=316912f30dd90113ab9203eff1bc998bb89b47cf" },
     { name = "controlplane-db", git = "https://github.com/hyperme-sh/controlplane-db.git?rev=95ef61433374274f4a4fc287e15982be6357e1cc" },
     { name = "controlplane-events", git = "https://github.com/hyperme-sh/controlplane-events.git?rev=2a49f9af5f6c4dc9d6c4ddebc83c41d6331e2c87" },
-    { name = "controlplane-identity", git = "https://github.com/hyperme-sh/controlplane-identity.git?rev=a2cb7f055dced17f76e64009395ffb7599557a71" },
+    { name = "controlplane-identity", git = "https://github.com/hyperme-sh/controlplane-identity.git?rev=14355f230e15a5acf3b1283e87d5f65aceff35ba" },
     { name = "controlplane-tenancy", git = "https://github.com/hyperme-sh/controlplane-tenancy.git?rev=f252909af772b2c820555af36de456d46f17cfcb" },
     { name = "cryptography", specifier = ">=44.0.0" },
     { name = "httpx", specifier = ">=0.28.0" },

@@ -370,3 +370,29 @@ def test_native_tenant_session_signature_and_tenant_binding(monkeypatch):
     claims['exp'] = 1
     expired = jwt.encode(claims, settings.api_key_exchange_jwt_secret, algorithm='HS256')
     assert verify_jwt_locally(expired) is None
+
+
+def test_browser_run_bearer_cannot_gain_paid_router_or_bootstrap_authority(monkeypatch):
+    from controlplane_identity.configuration import settings
+    from controlplane_identity.nightly import admitted_run
+    from controlplane_identity.security.tenant_session_jwt import mint_tenant_session_jwt
+    from hypermesh_gateway_service.renter_auth import verified_bootstrap_tenant
+    monkeypatch.setattr(settings,'api_key_exchange_jwt_secret','native-gateway-unit-secret-32-characters-minimum')
+    monkeypatch.delenv('ACCOUNT_CLOSURE_ENFORCEMENT_ENABLED',raising=False)
+    tenant=uuid.uuid4();subject=str(uuid.uuid4())
+    binding=dict(version=1,run='123-1-portal-device-transfer',generation='c'*64,
+        operation=str(uuid.uuid4()),scope=dict(suite='portal-device-transfer',subject=subject,tenant=str(tenant)))
+    with admitted_run(binding):
+        token=mint_tenant_session_jwt(claims={'sub':subject,'nightly_run':{k:binding[k] for k in ('run','generation')}},tenant_id=tenant)
+        assert verify_jwt_locally(token) is None
+        request=_request(authorization='Bearer '+token,tenant_id=tenant)
+        assert verified_bootstrap_tenant(request) is None
+        with pytest.raises(RenterUnauthorized):require_renter_grant(request)
+    assert verify_jwt_locally(token) is None
+
+
+def test_injected_native_verifier_cannot_admit_browser_scope():
+    class BoundVerifier:
+        def validate_sync(self,token):
+            return {'sub':'fixture','nightly_run':{'run':'123-1-portal-device-transfer','generation':'c'*64}}
+    assert verify_jwt_locally('native.jwt.token',validator=BoundVerifier()) is None
