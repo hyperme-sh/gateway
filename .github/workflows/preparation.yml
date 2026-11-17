@@ -27,3 +27,14 @@ jobs:
           export PREPARATION_EVIDENCE_DIR="$output/evidence"
           echo "PREPARED_OUTPUT=$output" >> "$GITHUB_ENV"
           bash scripts/check-package.sh --fixtures
+      - name: Build runtime and reject retained distribution layers
+        shell: bash
+        run: |
+          set -euo pipefail
+          scratch=$(mktemp -d "$RUNNER_TEMP/gateway-image-check.XXXXXX")
+          image="gateway:layer-check-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          trap 'docker image rm "$image" >/dev/null 2>&1 || true; rm -rf "$scratch"' EXIT
+          python3 scripts/prepare-runtime-context.py --artifacts "$PREPARED_OUTPUT/dist" \
+            --output "$scratch/context" --source-sha "$GITHUB_SHA"
+          docker build --build-arg "SOURCE_SHA=$GITHUB_SHA" -t "$image" "$scratch/context"
+          python3 scripts/check_runtime_layers.py --image "$image"

@@ -238,6 +238,11 @@ bash scripts/check-package.sh
 bash scripts/check-runtime-image.sh
 ```
 
+The final image retains installed packages and `runtime-inputs.json`, not the
+wheel/source distribution ZIP or builder wheel directory. PR builds and main
+image qualification inspect every final-image layer, including files hidden by
+later deletion; the temporary inspection archive is removed rather than uploaded.
+
 The image includes `iproute2` and `wireguard-tools`. Its entrypoint exits if `ip` or `wg` is missing. Deployment supplies `NET_ADMIN`, `/dev/net/tun`, the gateway credential, and published ports. See [Releasing](docs/releasing.md).
 
 ## How Hypermesh uses it
