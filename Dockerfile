@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 # Build only the context produced by scripts/prepare-runtime-context.py.
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim@sha256:531f855bda2c73cd6ef67d56b733b357cea384185b3022bd09f05e002cd144ca AS builder
+FROM python:3.13-alpine@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e AS builder
+COPY --from=ghcr.io/astral-sh/uv:0.11.26@sha256:3d868e555f8f1dbc324afa005066cd11e1053fc4743b9808ca8025283e65efa5 /uv /usr/local/bin/uv
 WORKDIR /app
 ENV UV_HTTP_TIMEOUT=120
 COPY requirements.txt /packages/requirements.txt
@@ -10,14 +11,11 @@ RUN uv venv --python /usr/local/bin/python /app/.venv \
     && uv pip install --python /app/.venv/bin/python --no-index --no-deps /packages/wheels/*.whl \
     && uv pip check --python /app/.venv/bin/python
 
-FROM python:3.13-slim-bookworm@sha256:281d39ff02e3b389401586134ff9e6572954687822a58055ec07a60ded4e0b7f
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates iproute2 wireguard-tools nftables \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.13-alpine@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e
+RUN apk add --no-cache ca-certificates iproute2 wireguard-tools nftables
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY runtime-inputs.json /app/runtime-inputs.json
 ARG SOURCE_SHA
 ARG BUILT_AT
 LABEL org.opencontainers.image.source="https://github.com/hyperme-sh/hypermesh-gateway" \
