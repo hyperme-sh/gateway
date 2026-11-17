@@ -108,6 +108,16 @@ async def test_removal_fences_authority_request_already_in_flight(peers):
     assert not peers.driver.applied and not peers.peers and not peers.pending
 
 
+async def test_attempt_cleanup_does_not_remove_a_newer_peer(peers):
+    caller = identity()
+    await peers.provision(caller, "first-grant")
+    await peers.provision(caller, "second-grant")
+    await peers.remove(caller, "first-grant")
+    assert caller in peers.peers and not peers.driver.removed
+    await peers.remove(caller, "second-grant")
+    assert caller not in peers.peers and len(peers.driver.removed) == 1
+
+
 @pytest.mark.parametrize("origin", ["http://authority", "https://a/path", "https://user:pass@a", "https://a?x=1"])
 def test_authority_origin_is_fixed_https(origin):
     with pytest.raises(ValueError): mesh.Authority(origin, "gateway", "secret")

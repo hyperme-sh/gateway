@@ -29,11 +29,13 @@ class KernelPhoneDriver:
         self.destination, self.port, self.command = str(address), conductor_port, command
         self.ready = False
         self.lock_file = None
+        self.permissions = {}
 
     def rules(self):
-        # Destroy tolerates absence; this batch installs the full isolated
-        # ruleset atomically. Traffic never refreshes the permission timeout.
-        return f"""destroy table inet {TABLE}
+        # Add is idempotent for tables. Create/delete in this atomic batch
+        # handles first startup and restart using Debian's supported syntax.
+        return f"""add table inet {TABLE}
+delete table inet {TABLE}
 table inet {TABLE} {{
  set clients {{ type ipv4_addr; flags timeout; size 256; }}
  chain input {{ type filter hook input priority -20; policy accept;
@@ -95,21 +97,35 @@ table inet {TABLE} {{
             raise PhoneUnavailable("Phone interface is unavailable")
         address = str(ipaddress.IPv4Address(address))
         self.command(["wg", "set", INTERFACE, "peer", public_key, "allowed-ips", address + "/32"])
-        # Floor and subtract the command timeout so a delayed kernel commit
-        # cannot authorize traffic beyond the absolute authority deadline.
-        seconds = min(55, math.floor(expires_at - time.time() - 5))
-        if seconds <= 0:
+        if expires_at - time.time() <= 5:
             raise PhoneUnavailable("Phone authorization has insufficient time remaining")
-        self.command(["nft", "-f", "-"], script=(
-            f"destroy element inet {TABLE} clients {{ {address} }}\n"
-            f"add element inet {TABLE} clients {{ {address} timeout {seconds}s }}\n"))
+        self.permissions[address] = (expires_at, time.monotonic() + min(60, expires_at - time.time()))
+        self._sync_permissions()
+
+    def _sync_permissions(self):
+        # Rebuild this small dedicated set atomically. Existing permissions
+        # keep their original wall and monotonic deadlines across refreshes.
+        wall, mono = time.time(), time.monotonic()
+        active = {}
+        elements = []
+        for address, (expires, deadline) in self.permissions.items():
+            seconds = math.floor(min(expires - wall, deadline - mono, 60) - 5)
+            if seconds > 0:
+                active[address] = (expires, deadline)
+                elements.append(f"{address} timeout {seconds}s")
+        self.permissions = active
+        script = f"flush set inet {TABLE} clients\n"
+        if elements:
+            script += f"add element inet {TABLE} clients {{ " + ", ".join(elements) + " }\n"
+        self.command(["nft", "-f", "-"], script=script)
 
     async def remove(self, public_key: str, address: str):
         await asyncio.to_thread(self._remove, public_key, address)
 
     def _remove(self, public_key, address):
         address = str(ipaddress.IPv4Address(address))
-        self.command(["nft", "-f", "-"], script=f"destroy element inet {TABLE} clients {{ {address} }}\n")
+        self.permissions.pop(address, None)
+        self._sync_permissions()
         self.command(["wg", "set", INTERFACE, "peer", public_key, "remove"])
 
     async def close(self):

@@ -29,7 +29,7 @@ async def test_kernel_timeout_subtracts_command_budget(monkeypatch):
     assert "timeout 54s" in calls[-1][1]["script"]
     assert calls[0][0] == ["wg", "set", "wg-phone", "peer", key, "allowed-ips", "10.90.0.2/32"]
     await driver.remove(key, "10.90.0.2")
-    assert "destroy element" in calls[-2][1]["script"]
+    assert calls[-2][1]["script"] == "flush set inet hm_phone clients\n"
     assert calls[-1][0][-1] == "remove"
 
 
@@ -43,3 +43,19 @@ async def test_unavailable_or_expired_never_opens_firewall(monkeypatch):
     monkeypatch.setattr(kernel.time, "time", lambda: 1056)
     with pytest.raises(PhoneUnavailable): await driver.apply("key", "10.90.0.2", 1060)
     assert all(c[0][0] != "nft" for c in calls)
+
+
+async def test_refresh_does_not_extend_other_peer_after_clock_moves_backward(monkeypatch):
+    scripts = []
+    clock = [1000, 2000]
+    monkeypatch.setattr(kernel.time, "time", lambda: clock[0])
+    monkeypatch.setattr(kernel.time, "monotonic", lambda: clock[1])
+    driver = kernel.KernelPhoneDriver("10.77.1.9", 9443,
+        command=lambda args, **kw: scripts.append(kw.get("script", "")))
+    driver.ready = True
+    await driver.apply("first-key", "10.90.0.2", 1060)
+    clock[:] = [990, 2030]
+    await driver.apply("second-key", "10.90.0.3", 1050)
+    assert "10.90.0.2 timeout 25s" in scripts[-1]
+    assert "10.90.0.3 timeout 55s" in scripts[-1]
+    assert "destroy" not in driver.rules()

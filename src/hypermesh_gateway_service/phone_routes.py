@@ -31,6 +31,10 @@ class ProvisionBody(IdentityBody):
     grant: str = Field(pattern=r"^hm_pm_[A-Za-z0-9_-]{43}$", repr=False)
 
 
+class RemoveBody(IdentityBody):
+    grant: str | None = Field(default=None, pattern=r"^hm_pm_[A-Za-z0-9_-]{43}$", repr=False)
+
+
 def authenticated(request, body):
     service = getattr(request.app.state, "phone_peers", None)
     if service is None:
@@ -73,12 +77,12 @@ async def provision(request: Request, body: ProvisionBody, response: Response):
 
 
 @router.post("/remove")
-async def remove(request: Request, body: IdentityBody, response: Response):
+async def remove(request: Request, body: RemoveBody, response: Response):
     response.headers["Cache-Control"] = "no-store"
     service, identity = authenticated(request, body)
     peers = service["peers"]
     try:
-        await peers.remove(identity)
+        await peers.remove(identity, body.grant)
     except (OSError, subprocess.SubprocessError):
         raise HTTPException(503, "Phone peer removal unavailable") from None
     return {"removed": True}

@@ -44,9 +44,10 @@ docker run --rm "${ci_labels[@]}" --network none --cap-drop ALL --read-only \
   --env HYPERMESH_WG_APPLY=0 --env HYPERMESH_ASSIGNMENT_REFRESH_S=0 \
   "$image" /app/.venv/bin/python -I -c '
 import importlib, importlib.util, json, shutil, subprocess
-assert shutil.which("ip") and shutil.which("wg")
+assert shutil.which("ip") and shutil.which("wg") and shutil.which("nft")
 subprocess.run(["ip", "-Version"], check=True)
 subprocess.run(["wg", "--version"], check=True)
+subprocess.run(["nft", "--version"], check=True)
 module = importlib.import_module("hypermesh_gateway_service")
 assert "/site-packages/" in module.__file__
 assert importlib.util.find_spec("hypermesh_service") is None

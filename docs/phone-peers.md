@@ -17,8 +17,8 @@ Configuration fields:
 | `listen_port`, `public_endpoint` | Dedicated UDP listener and advertised host:port |
 | `conductor_origin` | HTTPS origin with the explicit private Conductor IPv4 address and TCP port |
 
-The operator must provision IPv4 forwarding, WireGuard, `ip`, nftables with
-`destroy element` support, and CAP_NET_ADMIN. Startup checks forwarding without
+The runtime image includes WireGuard, `ip` and nftables. The operator must
+provision IPv4 forwarding and CAP_NET_ADMIN. Startup checks forwarding without
 changing it. A process lock prevents two workers from managing this phone
 interface. Restart resets only that interface and its firewall state; phones
 must request fresh authorization. TEST follows its moving service channel.
@@ -46,7 +46,11 @@ handshake does not extend permission. Expired peers are removed by a periodic
 sweep, and uncertain removal never frees their address for another phone.
 
 An authenticated Plane can request immediate removal with the same identity
-at `POST /api/v1/hypermesh-gateway/phone-peers/remove`. Revocation must stop
+at `POST /api/v1/hypermesh-gateway/phone-peers/remove`. Failed-attempt cleanup
+includes its `grant`, so it cancels only
+that attempt and cannot remove a different request's newer peer. Omitting the
+grant performs enrollment-wide removal and fences all pending authorization.
+Revocation must stop
 issuing grants; the timeout bounds access if removal cannot reach Gateway.
 Native clients must treat expiry or an unavailable response as disconnected.
 Conductor still applies its own AIuditor checks to every application request.
