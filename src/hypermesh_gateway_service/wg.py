@@ -1,6 +1,6 @@
 """Apply the gateway side of a real WireGuard host peer.
 
-One WireGuard peer per HOST, not per lease. Apply that peer once. A standing
+One WireGuard peer per HOST, not per lease. Reconcile that peer when missing. A standing
 wg-hm iface still receives the peer. Do not add or drop a peer on
 lease_start or lease_stop. remove_peer is host teardown only (failed certification /
 device revoke).
@@ -42,6 +42,19 @@ def _run(cmd: list[str]) -> None:
     subprocess.run(cmd, check=True, capture_output=True, text=True)
 
 
+def _peer_has_route(peer_public_key: str, route: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["wg", "show", WG_IFACE, "allowed-ips"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return False
+    return any(row.split() == [peer_public_key, route] for row in result.stdout.splitlines())
+
+
 def apply_gateway(
     *,
     server_private_key: str,
@@ -55,10 +68,12 @@ def apply_gateway(
     if not server_private_key or not peer_public_key:
         logger.info("wireguard apply skipped (missing keys)")
         return False
-    if peer_public_key in _applied_host_peers:
+    peer_ip = client_address.split("/", 1)[0]
+    route = peer_ip + "/32"
+    if peer_public_key in _applied_host_peers and _peer_has_route(peer_public_key, route):
         logger.info("wireguard host peer already applied")
         return True
-    peer_ip = client_address.split("/", 1)[0]
+    _applied_host_peers.discard(peer_public_key)
     with tempfile.NamedTemporaryFile("w", delete=False) as handle:
         handle.write(server_private_key + "\n")
         key_path = handle.name
@@ -73,7 +88,7 @@ def apply_gateway(
                 "peer",
                 peer_public_key,
                 "allowed-ips",
-                peer_ip + "/32",
+                route,
             ]
         )
         _ensure_address()
