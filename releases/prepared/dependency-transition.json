@@ -58,9 +58,9 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "43479ae1a1dd39aecc10d71e68d189cabef6019aa6a7f4b7d655f489109c3fa5",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
+      "after_sha256": "79974eed68ff99355a5d7891837766af7cf0b912dc194efdf5dc434084e2179d",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail"
     },
     "hypermesh_gateway_service/wg.py": {
       "before_sha256": "4b88a9dca504b011643c396bbdb5117e7224cebae87bb9b9209ff533c1221d0c",
@@ -88,9 +88,9 @@
     },
     "hypermesh_gateway_service/tickets.py": {
       "before_sha256": "bc6aea3674efd7283ff5717479f47a7d430c449b7227aebff41618990926ae23",
-      "after_sha256": "a455ee1a77caaef8d1f1f7d1436cf25245ba45eb8f9f0f782cc12143f3be3422",
-      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
-      "regression_test": "tests/test_digest_meters.py"
+      "after_sha256": "9fbfcb5e2055fa70589d9cebd6b2e2f4087af93de540c07de9bf8339d93290b1",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings.",
+      "regression_test": "tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail"
     },
     "hypermesh_gateway_service/body_limit.py": {
       "before_sha256": "0b6b0e1efcdd0d0602d3e5123b035d4a69650961e6a9559f07c3c509fccdf35c",
