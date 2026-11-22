@@ -59,13 +59,13 @@
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
       "after_sha256": "63def19a31c70b6216528a186552aff1396c3815e742f5ad6e08368a5d9e4b79",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings.",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete.",
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py"
     },
     "hypermesh_gateway_service/wg.py": {
       "before_sha256": "4b88a9dca504b011643c396bbdb5117e7224cebae87bb9b9209ff533c1221d0c",
       "after_sha256": "f04315c814376734d1749abf6e4beadf5cb81a948dc43633681b5466557c7821",
-      "reason": "Report skipped and failed WireGuard apply attempts to the caller.",
+      "reason": "Report skipped and failed WireGuard apply attempts to the caller. Reconcile a missing or changed kernel peer route for an existing allocation.",
       "regression_test": "tests/test_wg_apply.py::test_skipped_or_failed_apply_is_not_reported_as_applied; tests/test_wg_apply.py"
     },
     "hypermesh_gateway_service/control_plane.py": {
