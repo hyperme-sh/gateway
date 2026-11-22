@@ -101,6 +101,8 @@ class TicketCache:
         tenant_id: uuid.UUID,
         pull: TicketPull,
         tunnels: Iterable[object] | None = None,
+        *,
+        retain_known_peers: bool = False,
     ) -> None:
         from controlplane_identity.account_lifecycle import enforcement_enabled
         from hypermesh_gateway_service.account_ledger import LedgerUnavailable
@@ -114,6 +116,7 @@ class TicketCache:
             if isinstance(lease_id, uuid.UUID):
                 by_lease[lease_id] = tunnel
         stale = [key for key in self._tickets if key[0] == tenant_id]
+        previous = {key[1]: self._tickets[key] for key in stale} if retain_known_peers else {}
         for key in stale:
             del self._tickets[key]
         self._revoked[tenant_id] = set(pull.revoked_lease_ids)
@@ -131,6 +134,18 @@ class TicketCache:
                     or ticket.peer_public_key,
                     client_address=ticket.client_address
                     or str(getattr(tunnel, "client_address", "") or ""),
+                )
+            elif (
+                (prior := previous.get(ticket.lease_id)) is not None
+                and ticket.active
+                and ticket.lease_id not in self._revoked[tenant_id]
+                and ticket.assigned_gateway_id == prior.assigned_gateway_id
+                and ticket.device_id is not None
+                and ticket.device_id == prior.device_id
+                and ticket.client_address == prior.client_address
+            ):
+                enriched = replace(
+                    ticket, tunnel_id=prior.tunnel_id, peer_public_key=prior.peer_public_key,
                 )
             self._tickets[(tenant_id, ticket.lease_id)] = enriched
 

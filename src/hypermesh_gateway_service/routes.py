@@ -374,7 +374,7 @@ async def refresh_assignments(
     except Exception:
         # Ticket and fingerprint authority still applies when tunnel setup fails.
         pull = await plane.list_tickets(tenant_id)
-        cache.replace_from_pull(tenant_id, pull)
+        cache.replace_from_pull(tenant_id, pull, retain_known_peers=True)
         raise
     pull = await plane.list_tickets(tenant_id)
     cache.replace_from_pull(tenant_id, pull, tunnels=tunnels)
