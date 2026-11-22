@@ -406,7 +406,18 @@ async def refresh_known_tenants(
     for tenant_id in cache.known_tenants():
         try:
             tunnels = await refresh_assignments(plane, cache, tenant_id)
-            apply_allocated_tunnels(tunnels)
+            applied = apply_allocated_tunnels(tunnels)
+            allocated = {
+                tunnel.peer_public_key
+                for tunnel in tunnels
+                if tunnel.status == "allocated" and tunnel.peer_public_key
+            }
+            if applied != len(allocated):
+                logger.warning(
+                    "wireguard assignment reconciliation incomplete allocated_peers=%d applied_peers=%d",
+                    len(allocated),
+                    applied,
+                )
         except Exception:
             logger.info("assignment refresh skipped")
     if queue is not None:

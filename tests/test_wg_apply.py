@@ -86,3 +86,28 @@ def test_skipped_or_failed_apply_is_not_reported_as_applied(monkeypatch) -> None
     monkeypatch.setattr(wg, "_run", fail)
     assert wg.apply_gateway(**args) is False
     assert "unapplied" not in wg._applied_host_peers
+
+
+def test_cached_peer_is_reapplied_when_kernel_route_is_missing_or_changed(monkeypatch) -> None:
+    calls: list[list[str]] = []
+    monkeypatch.setattr(wg, "_run", calls.append)
+    monkeypatch.setattr(wg, "should_apply", lambda: True)
+    _clear()
+    args = dict(server_private_key="priv", peer_public_key="pub-a", client_address="10.77.0.2/32")
+    assert wg.apply_gateway(**args)
+
+    for routes, should_reapply in (
+        ("pub-a\t10.77.0.2/32\n", False),
+        ("pub-a\t10.77.0.9/32\n", True),
+        ("other\t10.77.0.2/32\n", True),
+    ):
+        calls.clear()
+
+        def read_allowed_ips(cmd, **kwargs):
+            assert cmd == ["wg", "show", wg.WG_IFACE, "allowed-ips"]
+            return subprocess.CompletedProcess(cmd, 0, routes)
+
+        monkeypatch.setattr(wg.subprocess, "run", read_allowed_ips)
+        assert wg.apply_gateway(**args)
+        set_peer = ["wg", "set", wg.WG_IFACE, "peer", "pub-a", "allowed-ips", "10.77.0.2/32"]
+        assert (set_peer in calls) is should_reapply
