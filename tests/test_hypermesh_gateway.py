@@ -831,6 +831,29 @@ async def test_refresh_known_tenants_applies_allocated_host_peer(
 
 
 @pytest.mark.asyncio
+async def test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail(
+    tenant_id, control_plane, monkeypatch
+):
+    from hypermesh_gateway_service.routes import refresh_known_tenants
+    from hypermesh_gateway_service.tickets import TicketCache
+
+    async def fail_tunnels(tenant):
+        raise RuntimeError("Gateway public-key registration refused")
+
+    lease_id = uuid.uuid4()
+    cache = TicketCache()
+    cache.put(tenant_id, _signed_ticket(lease_id))
+    control_plane.ticket_pull = _ticket_pull([], revoked=[lease_id])
+    monkeypatch.setattr(control_plane, "list_tunnels", fail_tunnels)
+
+    await refresh_known_tenants(control_plane, cache)
+
+    assert control_plane.list_tickets_calls == 1
+    assert cache.key_fingerprints(tenant_id) == set(TEST_RENTER_FINGERPRINTS)
+    assert cache.get(tenant_id, lease_id) is None
+
+
+@pytest.mark.asyncio
 async def test_refresh_known_tenants_skips_revoked_and_keyless_tunnels(
     tenant_id, control_plane, monkeypatch
 ):
