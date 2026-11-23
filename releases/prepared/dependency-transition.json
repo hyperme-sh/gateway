@@ -52,8 +52,8 @@
     },
     "hypermesh_gateway_service/renter_auth.py": {
       "before_sha256": "085f612fa7169ab97e4dca8fb532c09f4de16a0517865bfa9dde2f1be09c07dc",
-      "after_sha256": "a4c65ecfa03ca4178be544934e310a77b629981201538a9443d97d2941b76e29",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Refuse original browser-run tokens on paid and bootstrap paths.",
+      "after_sha256": "76e869be5e170dc00253727ff7221276cd87c8d52da3222d63509e8f92750078",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Refuse original browser-run tokens on paid and bootstrap paths. Apply verified account state when the tunnel lookup is unavailable.",
       "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py; tests/test_renter_auth.py"
     },
     "hypermesh_gateway_service/routes.py": {
