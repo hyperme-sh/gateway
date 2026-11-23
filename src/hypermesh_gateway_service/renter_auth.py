@@ -208,9 +208,14 @@ async def bootstrap_account_authority(request: Request, tenant: uuid.UUID) -> No
         if not ledger.tenant_ready(tenant):
             if plane is None:
                 raise LedgerUnavailable()
-            tunnels = await plane.list_tunnels(tenant)
+            try:
+                tunnels = await plane.list_tunnels(tenant)
+            except Exception:
+                # Account state comes from the ticket snapshot. A tunnel
+                # outage should not prevent applying that verified state.
+                tunnels = None
             pull = await plane.list_tickets(tenant)
-            cache.replace_from_pull(tenant, pull, tunnels=tunnels)
+            cache.replace_from_pull(tenant, pull, tunnels=tunnels, retain_known_peers=tunnels is None)
     except Exception:
         raise RenterUnauthorized() from None
 
