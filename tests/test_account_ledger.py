@@ -330,8 +330,9 @@ def test_concurrent_initialization_uses_one_complete_schema(tmp_path):
     assert all(ledger.tenant_ready(tenant) for ledger in ledgers)
 
 
-async def test_bootstrap_preserves_the_standing_tunnel_peer_metadata(
-    tmp_path, monkeypatch
+@pytest.mark.parametrize("tunnel_available", [True, False])
+async def test_bootstrap_uses_ticket_snapshot_with_or_without_tunnels(
+    tmp_path, monkeypatch, tunnel_available
 ):
     from types import SimpleNamespace
     from starlette.requests import Request
@@ -350,6 +351,8 @@ async def test_bootstrap_preserves_the_standing_tunnel_peer_metadata(
 
     class Plane:
         async def list_tunnels(self, tenant):
+            if not tunnel_available:
+                raise TimeoutError("tunnel endpoint unavailable")
             return [
                 SimpleNamespace(
                     lease_id=lease,
@@ -387,8 +390,14 @@ async def test_bootstrap_preserves_the_standing_tunnel_peer_metadata(
     )
     await bootstrap_account_authority(request, tenant)
     current = cache.get(tenant, lease)
-    assert current.peer_public_key == "standing-peer-key"
-    assert current.tunnel_id == tunnel and current.client_address == "10.0.0.2"
+    assert ledger.tenant_ready(tenant)
+    assert current is not None
+    if tunnel_available:
+        assert current.peer_public_key == "standing-peer-key"
+        assert current.tunnel_id == tunnel and current.client_address == "10.0.0.2"
+    else:
+        assert current.peer_public_key is None
+        assert current.tunnel_id is None
 
 
 async def test_receipt_bootstrap_requires_a_verified_matching_credential(
