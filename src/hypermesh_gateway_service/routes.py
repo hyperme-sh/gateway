@@ -620,11 +620,13 @@ def _cached_key_tenant(cache: TicketCache, fingerprint: str, *, ir: bool) -> uui
 async def _refresh_watched_key_tenant(request: Request, plane: ControlPlane, cache: TicketCache) -> None:
     # A caller may select a refresh only for a tenant already known to this
     # Gateway. The header cannot establish ownership of the presented key.
+    if not request.scope.get("headers"):
+        return
     try:
         tenant = _optional_tenant_header(request)
     except HTTPException:
         return
-    if tenant is None or tenant not in cache.known_tenants():
+    if tenant is None or not cache.watches(tenant):
         return
     try:
         async with asyncio.timeout(3.0):

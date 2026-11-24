@@ -58,7 +58,7 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "63fbb3c94beadd9802ee04a5ac1bab6a7083d991a1879422bc2a41f66a9ed5f8",
+      "after_sha256": "e87f3d763f48c731347f44dff2aaba0302963148aebf12e274425f6ac66aedca",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete. Refresh the authoritative ticket snapshot for a known tenant after a key index miss without waiting for tunnel registration.",
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot"
     },
@@ -88,9 +88,9 @@
     },
     "hypermesh_gateway_service/tickets.py": {
       "before_sha256": "bc6aea3674efd7283ff5717479f47a7d430c449b7227aebff41618990926ae23",
-      "after_sha256": "9fbfcb5e2055fa70589d9cebd6b2e2f4087af93de540c07de9bf8339d93290b1",
-      "reason": "Durable named count batches, authoritative lease selection and pre-close drain. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings.",
-      "regression_test": "tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail"
+      "after_sha256": "edef2f2ec9f440d635ed7bed5c0658d95ce2bfe350c47bb7d34498510d0a27c0",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Require an explicit watch before a request can trigger a tenant snapshot refresh.",
+      "regression_test": "tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot"
     },
     "hypermesh_gateway_service/body_limit.py": {
       "before_sha256": "0b6b0e1efcdd0d0602d3e5123b035d4a69650961e6a9559f07c3c509fccdf35c",

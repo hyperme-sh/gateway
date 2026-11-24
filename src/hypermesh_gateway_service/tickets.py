@@ -88,6 +88,9 @@ class TicketCache:
 
         self._watched.add(tenant_id)
 
+    def watches(self, tenant_id: uuid.UUID) -> bool:
+        return tenant_id in self._watched
+
     def known_tenants(self) -> list[uuid.UUID]:
         tenants = {tenant_id for tenant_id, _lease_id in self._tickets}
         tenants.update(self._revoked)
