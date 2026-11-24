@@ -58,7 +58,7 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "e87f3d763f48c731347f44dff2aaba0302963148aebf12e274425f6ac66aedca",
+      "after_sha256": "8593cfa4e2b1ffbf067383ed6c6de9507fc36f0056541ce2f6d5bd811d3f1de3",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete. Refresh the authoritative ticket snapshot for a known tenant after a key index miss without waiting for tunnel registration.",
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot"
     },

@@ -89,13 +89,13 @@ async def test_key_cache_miss_pulls_known_tenant_snapshot(scenario):
     request = Request({"type": "http", "app": SimpleNamespace(state=state),
                        "headers": [(b"x-tenant-id", str(tenant).encode())]})
     if scenario == "published":
-        assert await _tenant_from_api_key(request, key, ir=False) == tenant
+        assert await _tenant_from_api_key(request, key, ir=False, refresh_watched=True) == tenant
     else:
         with pytest.raises(DoorError):
-            await _tenant_from_api_key(request, key, ir=False)
+            await _tenant_from_api_key(request, key, ir=False, refresh_watched=True)
     if scenario != "unwatched":
         with pytest.raises(DoorError):
-            await _tenant_from_api_key(request, "demo.unpublished", ir=False)
+            await _tenant_from_api_key(request, "demo.unpublished", ir=False, refresh_watched=True)
     assert calls == ([] if scenario == "unwatched" else [tenant])
 
 
