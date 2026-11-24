@@ -12,7 +12,8 @@ from hypermesh_gateway_service.chat import SseToolCallIds
 from hypermesh_gateway_service.metrics import MeterQueue, MeterQueueFull, flush_meter_queue
 from hypermesh_gateway_service.routes import _tenant_from_api_key
 from hypermesh_gateway_service.errors import DoorError
-from hypermesh_gateway_service.tickets import TicketCache
+from hypermesh_gateway_service.tickets import TicketCache, TicketPull
+from hypermesh_ticket import renter_key_fingerprint
 from test_hypermesh_gateway import _signed_ticket, _renter, _ir, TEST_IR_FINGERPRINTS
 
 
@@ -60,6 +61,42 @@ async def test_flush_batch_and_deadline_preserve_pending(control_plane, tenant_i
     control_plane.post_metrics = blocked
     assert await flush_meter_queue(control_plane, queue, budget_s=0.01) == 0
     assert queue.pending_count() == 47
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("scenario", ["published", "revoked", "unwatched"])
+async def test_key_cache_miss_pulls_known_tenant_snapshot(scenario):
+    key = "demo.newly-minted"
+    fingerprint = renter_key_fingerprint(key)
+    tenant = uuid.uuid4()
+    cache = TicketCache()
+    if scenario != "unwatched":
+        cache.watch(tenant)
+    calls = []
+
+    async def index():
+        return []
+
+    async def tickets(tenant_id):
+        calls.append(tenant_id)
+        return TicketPull(
+            tickets=[], revoked_lease_ids=[], key_fingerprints=[fingerprint],
+            revoked_key_fingerprints=[fingerprint] if scenario == "revoked" else [],
+        )
+
+    plane = SimpleNamespace(list_key_index=index, list_tickets=tickets)
+    state = SimpleNamespace(ticket_cache=cache, control_plane=plane)
+    request = Request({"type": "http", "app": SimpleNamespace(state=state),
+                       "headers": [(b"x-tenant-id", str(tenant).encode())]})
+    if scenario == "published":
+        assert await _tenant_from_api_key(request, key, ir=False) == tenant
+    else:
+        with pytest.raises(DoorError):
+            await _tenant_from_api_key(request, key, ir=False)
+    if scenario != "unwatched":
+        with pytest.raises(DoorError):
+            await _tenant_from_api_key(request, "demo.unpublished", ir=False)
+    assert calls == ([] if scenario == "unwatched" else [tenant])
 
 
 @pytest.mark.asyncio

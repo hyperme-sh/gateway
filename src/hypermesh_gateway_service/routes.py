@@ -617,8 +617,25 @@ def _cached_key_tenant(cache: TicketCache, fingerprint: str, *, ir: bool) -> uui
     return cache.tenant_for_fingerprint(fingerprint, ir=False)
 
 
+async def _refresh_watched_key_tenant(request: Request, plane: ControlPlane, cache: TicketCache) -> None:
+    # A caller may select a refresh only for a tenant already known to this
+    # Gateway. The header cannot establish ownership of the presented key.
+    try:
+        tenant = _optional_tenant_header(request)
+    except HTTPException:
+        return
+    if tenant is None or tenant not in cache.known_tenants():
+        return
+    try:
+        async with asyncio.timeout(3.0):
+            snapshot = await plane.list_tickets(tenant)
+        cache.replace_from_pull(tenant, snapshot, retain_known_peers=True)
+    except Exception:
+        logger.info("watched key tenant refresh skipped")
+
+
 async def _tenant_from_api_key(request: Request, raw_key: str, *, ir: bool) -> uuid.UUID:
-    """Fingerprint to tenant. One-shot index pull when the cache has never seen it."""
+    """Resolve a key from Plane authority, refreshing on a cache miss."""
 
     fingerprint = renter_key_fingerprint(raw_key)
     cache = _tickets(request)
@@ -640,9 +657,15 @@ async def _tenant_from_api_key(request: Request, raw_key: str, *, ir: bool) -> u
                     _note_index(cache, entries)
                 except Exception:
                     logger.info("key index refresh skipped")
-                finally:
-                    # Waiters share a completed attempt, including a timeout.
-                    request.app.state.key_index_retry_at = time.monotonic() + 5.0
+            try:
+                if _cached_key_tenant(cache, fingerprint, ir=ir) is None:
+                    await _refresh_watched_key_tenant(request, plane, cache)
+                    found = _cached_key_tenant(cache, fingerprint, ir=ir)
+                    if found is not None:
+                        return found
+            finally:
+                # Waiters share a completed attempt, including a timeout.
+                request.app.state.key_index_retry_at = time.monotonic() + 5.0
     hinted = _cached_key_tenant(cache, fingerprint, ir=ir)
     if hinted is None:
         raise DoorError(401, INVALID_API_KEY_MESSAGE, "invalid_api_key")
