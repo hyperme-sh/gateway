@@ -617,8 +617,29 @@ def _cached_key_tenant(cache: TicketCache, fingerprint: str, *, ir: bool) -> uui
     return cache.tenant_for_fingerprint(fingerprint, ir=False)
 
 
-async def _tenant_from_api_key(request: Request, raw_key: str, *, ir: bool) -> uuid.UUID:
-    """Fingerprint to tenant. One-shot index pull when the cache has never seen it."""
+async def _refresh_watched_key_tenant(request: Request, plane: ControlPlane, cache: TicketCache) -> None:
+    # A caller may select a refresh only for a tenant already known to this
+    # Gateway. The header cannot establish ownership of the presented key.
+    if not request.scope.get("headers"):
+        return
+    try:
+        tenant = _optional_tenant_header(request)
+    except HTTPException:
+        return
+    if tenant is None or not cache.watches(tenant):
+        return
+    try:
+        async with asyncio.timeout(3.0):
+            snapshot = await plane.list_tickets(tenant)
+        cache.replace_from_pull(tenant, snapshot, retain_known_peers=True)
+    except Exception:
+        logger.info("watched key tenant refresh skipped")
+
+
+async def _tenant_from_api_key(
+    request: Request, raw_key: str, *, ir: bool, refresh_watched: bool = False,
+) -> uuid.UUID:
+    """Resolve a key from Plane authority, refreshing on a cache miss."""
 
     fingerprint = renter_key_fingerprint(raw_key)
     cache = _tickets(request)
@@ -640,9 +661,15 @@ async def _tenant_from_api_key(request: Request, raw_key: str, *, ir: bool) -> u
                     _note_index(cache, entries)
                 except Exception:
                     logger.info("key index refresh skipped")
-                finally:
-                    # Waiters share a completed attempt, including a timeout.
-                    request.app.state.key_index_retry_at = time.monotonic() + 5.0
+            try:
+                if refresh_watched and _cached_key_tenant(cache, fingerprint, ir=ir) is None:
+                    await _refresh_watched_key_tenant(request, plane, cache)
+                    found = _cached_key_tenant(cache, fingerprint, ir=ir)
+                    if found is not None:
+                        return found
+            finally:
+                # Waiters share a completed attempt, including a timeout.
+                request.app.state.key_index_retry_at = time.monotonic() + 5.0
     hinted = _cached_key_tenant(cache, fingerprint, ir=ir)
     if hinted is None:
         raise DoorError(401, INVALID_API_KEY_MESSAGE, "invalid_api_key")
@@ -700,13 +727,13 @@ async def _report_key_use(
 
 
 async def _authorize_caller(
-    request: Request, *, ir: bool
+    request: Request, *, ir: bool, refresh_watched: bool = False,
 ) -> tuple[RenterGrant, uuid.UUID, str | None]:
     from controlplane_identity.account_lifecycle import enforcement_enabled
     from hypermesh_gateway_service.renter_auth import bootstrap_account_authority, verified_bootstrap_tenant
     if enforcement_enabled():
         pending_key = presented_renter_key(request)
-        bootstrap_tenant = (await _tenant_from_api_key(request, pending_key, ir=ir)
+        bootstrap_tenant = (await _tenant_from_api_key(request, pending_key, ir=ir, refresh_watched=refresh_watched)
                             if pending_key else await asyncio.to_thread(verified_bootstrap_tenant, request))
         if bootstrap_tenant is not None:
             await bootstrap_account_authority(request, bootstrap_tenant)
@@ -718,7 +745,7 @@ async def _authorize_caller(
     if grant.kind == "api_key":
         if not raw_key:
             raise DoorError(401, INVALID_API_KEY_MESSAGE, "invalid_api_key")
-        tenant_id = await _tenant_from_api_key(request, raw_key, ir=ir)
+        tenant_id = await _tenant_from_api_key(request, raw_key, ir=ir, refresh_watched=refresh_watched)
         header_tenant = _optional_tenant_header(request)
         if header_tenant is not None and header_tenant != tenant_id:
             raise DoorError(403, TENANT_MISMATCH_MESSAGE, "tenant_mismatch")
@@ -805,7 +832,7 @@ def _models_body(request: Request, tenant_id: uuid.UUID, raw_key: str | None) ->
 async def _list_models(request: Request) -> dict[str, Any]:
     """Catalog ids of the key's active leases. No lease is an empty 200 list."""
 
-    _grant, tenant_id, raw_key = await _authorize_caller(request, ir=False)
+    _grant, tenant_id, raw_key = await _authorize_caller(request, ir=False, refresh_watched=True)
     return _models_body(request, tenant_id, raw_key)
 
 
