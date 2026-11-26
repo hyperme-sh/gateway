@@ -1,0 +1,32 @@
+name: Verify or publish the Gateway runtime to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      verify_identity_only:
+        description: Verify the issued GitHub subject and workflow without contacting Azure
+        type: boolean
+        default: true
+      version:
+        description: Authorized immutable Gateway release tag
+        type: string
+        required: true
+      expected_digest:
+        description: Exact authorized OCI manifest digest
+        type: string
+        required: true
+
+permissions: {}
+
+jobs:
+  publisher:
+    if: github.repository == 'hyperme-sh/gateway' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    uses: ./.github/workflows/publish-azure-runtime.yml
+    with:
+      verify_identity_only: ${{ inputs.verify_identity_only }}
+      version: ${{ inputs.version }}
+      expected_digest: ${{ inputs.expected_digest }}
