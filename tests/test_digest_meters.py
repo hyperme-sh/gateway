@@ -149,8 +149,9 @@ async def test_http_reading_retries_unchanged_and_rejects_wrong_scope(monkeypatc
     with pytest.raises(RuntimeError,match='mismatch'):await plane.post_reading(tenant,lease,payload)
 
 
-async def test_refused_lease_does_not_starve_other_tenants(tmp_path):
-    q=DigestQueue(tmp_path/'counts.db');bad=uuid.uuid4();good=uuid.uuid4();lease=uuid.uuid4()
+async def test_refused_lease_does_not_starve_other_tenants():
+    # Isolate batch ordering from disk flush time on the CI runner.
+    q=DigestQueue(":memory:");bad=uuid.uuid4();good=uuid.uuid4();lease=uuid.uuid4()
     for _ in range(101):
         identifier=q.begin(bad,lease,['token_digest_count']);q.finish(identifier,1)
     identifier=q.begin(good,lease,['token_digest_count']);q.finish(identifier,2)

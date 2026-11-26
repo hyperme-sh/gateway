@@ -89,7 +89,9 @@ def create_app(
         from controlplane_api.config import settings
         settings.require_edge_secrets()
         from hypermesh_gateway_service.ticket_verifier import validate_verifier
+        from hypermesh_gateway_service.wg_identity import retained_identity
         validate_verifier()
+        await asyncio.to_thread(retained_identity)
         configure_logging()
         app.state.control_plane = resolve_control_plane(control_plane)
         async with AsyncExitStack() as owners:

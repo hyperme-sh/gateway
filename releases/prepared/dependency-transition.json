@@ -40,9 +40,9 @@
   "consumer_adaptations": {
     "hypermesh_gateway_service/app.py": {
       "before_sha256": "34ff191285b498687225b5c7aa597e747530b15d7109879a36de7a77d1e269ec",
-      "after_sha256": "383bf0fd0168fd519bd490e6c31a3e5a75e8743f40d4ccf0da9ed735f86d914a",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
+      "after_sha256": "906f4e48cac41565334fc88d4bdba722fc0880bb34eff1d0d2a8ba0f10718f0c",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes. Validate the retained WireGuard public identity before the Gateway listener becomes available.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py; tests/test_key_custody.py"
     },
     "hypermesh_gateway_service/posture.py": {
       "before_sha256": "d4adb4ee599c64af597e2eec69ddb62a496f36dd619c02a686253475eab727ec",
@@ -164,8 +164,8 @@
       "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
     },
     "hypermesh_gateway_service/wg_identity.py": {
-      "sha256": "037873d2020aaa591e70c0df3a84341f39d1f31104c45d4748484e6d13d88a01",
-      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration.",
+      "sha256": "d5546a2286ef6fd1394b1b79250909dda36e12ea34b667c6d3184d197fc9f310",
+      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration. Fail closed on a missing or mismatched local key and preserve the same public-only identity across a fenced pair.",
       "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py"
     },
     "hypermesh_gateway_service/ticket_verifier.py": {
