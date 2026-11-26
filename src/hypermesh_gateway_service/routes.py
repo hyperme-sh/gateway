@@ -106,6 +106,7 @@ from hypermesh_gateway_service.verbs import (
 from hypermesh_gateway_service.tenants import MARKETPLACE_TENANT_ID
 from hypermesh_gateway_service.tickets import TicketCache
 from hypermesh_gateway_service.wg import apply_gateway, peer_counters, peer_is_up, remove_peer
+from hypermesh_gateway_service import wireguard_host
 from hypermesh_ticket import (
     IR_CHAT_PURPOSES,
     RENTER_CHAT_PURPOSES,
@@ -330,16 +331,24 @@ def apply_allocated_tunnels(tunnels: list[GatewayTunnel]) -> int:
     tunnel, so this does not drop a peer on lease_start or lease_stop.
     """
 
+    host_managed = wireguard_host.enabled()
+
+    def owned(tunnel: GatewayTunnel) -> bool:
+        if host_managed:
+            return tunnel.server_public_key == os.environ.get("HYPERMESH_WG_EXPECTED_PUBLIC_KEY")
+        return True
+
     live = {
         tunnel.peer_public_key
         for tunnel in tunnels
         if tunnel.status == "allocated"
-        and tunnel.server_private_key
+        and (host_managed or tunnel.server_private_key)
         and tunnel.peer_public_key
+        and owned(tunnel)
     }
     for tunnel in tunnels:
         key = tunnel.peer_public_key
-        if tunnel.status == "revoked" and key and key not in live:
+        if tunnel.status == "revoked" and key and key not in live and owned(tunnel):
             remove_peer(key)
     applied = 0
     seen: set[str] = set()
@@ -347,9 +356,10 @@ def apply_allocated_tunnels(tunnels: list[GatewayTunnel]) -> int:
         key = tunnel.peer_public_key
         if (
             tunnel.status != "allocated"
-            or not tunnel.server_private_key
+            or not (host_managed or tunnel.server_private_key)
             or not key
             or key in seen
+            or not owned(tunnel)
         ):
             continue
         seen.add(key)

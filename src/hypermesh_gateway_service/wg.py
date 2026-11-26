@@ -5,9 +5,8 @@ wg-hm iface still receives the peer. Do not add or drop a peer on
 lease_start or lease_stop. remove_peer is host teardown only (failed certification /
 device revoke).
 
-spanopticon assigns keys. This process holds the gateway private key and
-calls `wg` / `ip` (CAP_NET_ADMIN, /dev/net/tun). Missing tun is a no-op
-so unit tests and hosts without a kernel tun do not crash.
+The host-managed path uses a local peer API. The direct path configures the
+interface itself and remains available for existing deployments and fixtures.
 """
 
 from __future__ import annotations
@@ -18,6 +17,8 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+
+from hypermesh_gateway_service import wireguard_host
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,8 @@ def tun_available() -> bool:
 
 
 def should_apply() -> bool:
+    if wireguard_host.enabled():
+        return True
     if os.environ.get("HYPERMESH_WG_APPLY", "1") in {"0", "false", "no"}:
         return False
     return tun_available()
@@ -57,11 +60,18 @@ def _peer_has_route(peer_public_key: str, route: str) -> bool:
 
 def apply_gateway(
     *,
-    server_private_key: str,
+    server_private_key: str | None,
     peer_public_key: str,
     client_address: str,
     listen_port: int = WG_LISTEN_PORT,
 ) -> bool:
+    if wireguard_host.enabled():
+        try:
+            wireguard_host.request("apply", peer=peer_public_key, address=client_address.split("/", 1)[0])
+            return True
+        except RuntimeError:
+            logger.warning("WireGuard host peer update refused")
+            return False
     if not should_apply():
         logger.info("wireguard apply skipped (no tun or HYPERMESH_WG_APPLY=0)")
         return False
@@ -130,6 +140,12 @@ def remove_peer(peer_public_key: str) -> None:
 
     if not should_apply() or not peer_public_key:
         return
+    if wireguard_host.enabled():
+        try:
+            wireguard_host.request("remove", peer=peer_public_key)
+        except RuntimeError:
+            logger.warning("WireGuard host peer removal refused")
+        return
     try:
         _run(["wg", "set", WG_IFACE, "peer", peer_public_key, "remove"])
         _applied_host_peers.discard(peer_public_key)
@@ -145,6 +161,12 @@ def peer_handshake_epoch(peer_public_key: str) -> int | None:
 
     if not peer_public_key:
         return None
+    if wireguard_host.enabled():
+        try:
+            epoch, _, _ = wireguard_host.peer_stats(peer_public_key)
+            return epoch
+        except RuntimeError:
+            return None
     try:
         result = subprocess.run(
             ["wg", "show", WG_IFACE, "dump"],
@@ -169,6 +191,12 @@ def peer_counters(peer_public_key: str) -> tuple[int, int, int]:
 
     if not peer_public_key:
         return (0, 0, 0)
+    if wireguard_host.enabled():
+        try:
+            epoch, rx, tx = wireguard_host.peer_stats(peer_public_key)
+            return rx, tx, int(epoch > 0)
+        except RuntimeError:
+            return 0, 0, 0
     try:
         result = subprocess.run(
             ["wg", "show", WG_IFACE, "dump"],

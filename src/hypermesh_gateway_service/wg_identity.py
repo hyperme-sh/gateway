@@ -8,6 +8,7 @@ import tempfile
 
 from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat, PublicFormat
+from hypermesh_gateway_service import wireguard_host
 
 
 def public_key(private):
@@ -44,6 +45,10 @@ def read_private_key(path):
 def retained_identity():
     """Load an operator-provisioned identity without generating or adopting one."""
     expected = os.environ.get("HYPERMESH_WG_EXPECTED_PUBLIC_KEY")
+    if wireguard_host.enabled():
+        if os.environ.get("HYPERMESH_WG_APPLY", "1") in {"0", "false", "no"}:
+            raise ValueError("Host-managed WireGuard requires peer enforcement")
+        return None, wireguard_host.identity(expected)
     if expected is None:
         return None
     try:
@@ -63,7 +68,7 @@ def retained_identity():
 
 def local_identity(rows, *, registration_supported):
     active = [row for row in rows if row.get("status") == "allocated"]
-    if registration_supported and any(row.get("server_private_key") for row in rows):
+    if (registration_supported or wireguard_host.enabled()) and any(row.get("server_private_key") for row in rows):
         raise ValueError("Public-only Plane supplied private key material")
     expected = {row.get("server_public_key") for row in active}
     if len(expected) > 1 or None in expected:

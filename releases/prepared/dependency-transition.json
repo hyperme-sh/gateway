@@ -58,15 +58,15 @@
     },
     "hypermesh_gateway_service/routes.py": {
       "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "after_sha256": "8593cfa4e2b1ffbf067383ed6c6de9507fc36f0056541ce2f6d5bd811d3f1de3",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete. Refresh the authoritative ticket snapshot for a known tenant after a key index miss without waiting for tunnel registration.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot"
+      "after_sha256": "c47a954676abf7b4a0407117fb0dc7cea8e9894ab035b527b1cc51774dc2ad27",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete. Refresh the authoritative ticket snapshot for a known tenant after a key index miss without waiting for tunnel registration. Support the host-managed WireGuard peer service without application key custody.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot; tests/test_wireguard_host.py"
     },
     "hypermesh_gateway_service/wg.py": {
       "before_sha256": "4b88a9dca504b011643c396bbdb5117e7224cebae87bb9b9209ff533c1221d0c",
-      "after_sha256": "f04315c814376734d1749abf6e4beadf5cb81a948dc43633681b5466557c7821",
-      "reason": "Report skipped and failed WireGuard apply attempts to the caller. Reconcile a missing or changed kernel peer route for an existing allocation.",
-      "regression_test": "tests/test_wg_apply.py::test_skipped_or_failed_apply_is_not_reported_as_applied; tests/test_wg_apply.py"
+      "after_sha256": "3bd7997b4da284b3ceb75020ee71f999c96f7dd53ed5d78f6e8937c2db32a293",
+      "reason": "Report skipped and failed WireGuard apply attempts to the caller. Reconcile a missing or changed kernel peer route for an existing allocation. Support the host-managed WireGuard peer service without application key custody.",
+      "regression_test": "tests/test_wg_apply.py::test_skipped_or_failed_apply_is_not_reported_as_applied; tests/test_wg_apply.py; tests/test_wireguard_host.py"
     },
     "hypermesh_gateway_service/control_plane.py": {
       "before_sha256": "d924d899fb8efd544d010933ce64fb2000855d180aac9a37dade866e36fb19cc",
@@ -164,9 +164,9 @@
       "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
     },
     "hypermesh_gateway_service/wg_identity.py": {
-      "sha256": "d5546a2286ef6fd1394b1b79250909dda36e12ea34b667c6d3184d197fc9f310",
-      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration. Fail closed on a missing or mismatched local key and preserve the same public-only identity across a fenced pair.",
-      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py"
+      "sha256": "baea3c22847bbd6d64df49debd408d28790d4a12bb69745097df5e89955200d7",
+      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration. Fail closed on a missing or mismatched local key and preserve the same public-only identity across a fenced pair. Support the host-managed WireGuard peer service without application key custody.",
+      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py; tests/test_wireguard_host.py"
     },
     "hypermesh_gateway_service/ticket_verifier.py": {
       "sha256": "2ec316e11963d88f0a87f596ba5b4c1032d2c1bbe5504f9b2e40364b3880349e",
@@ -232,6 +232,11 @@
       "sha256": "94ac7bc126b07eb1823a970c0393a78aac413e229a289a8b16a5bde17049c269",
       "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
       "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
+    },
+    "hypermesh_gateway_service/wireguard_host.py": {
+      "sha256": "6f7776ee86484f3b54946b507f586a899086dc8d95c41b250a54cdb010878c27",
+      "reason": "Define the local keyless WireGuard peer API and the host-only interface handler.",
+      "regression_test": "tests/test_wireguard_host.py"
     }
   },
   "removed_requirements": [
