@@ -1,7 +1,7 @@
 name: Publish the protected Gateway runtime to Azure
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       verify_identity_only:
         description: Verify the issued GitHub subject and workflow without contacting Azure
@@ -56,13 +56,14 @@ jobs:
           with urlopen(request, timeout=20) as response:
               raw = json.load(response)["value"].split(".")[1]
           claims = json.loads(base64.urlsafe_b64decode(raw + "=" * (-len(raw) % 4)))
-          expected_workflow = "hyperme-sh/gateway/.github/workflows/publish-azure-runtime.yml@refs/heads/main"
+          workflow_prefix = "hyperme-sh/gateway/.github/workflows/"
           expected = {
               "iss": issuer, "aud": audience, "event_name": "workflow_dispatch",
               "repository": "hyperme-sh/gateway", "repository_id": "1439103692",
               "repository_owner_id": "351507761", "ref": "refs/heads/main",
               "sub": "repo:hyperme-sh@351507761/gateway@1439103692:ref:refs/heads/main",
-              "job_workflow_ref": expected_workflow, "workflow_ref": expected_workflow,
+              "job_workflow_ref": workflow_prefix + "publish-azure-runtime.yml@refs/heads/main",
+              "workflow_ref": workflow_prefix + "dispatch-azure-runtime.yml@refs/heads/main",
           }
           observed = {name: claims.get(name) for name in expected}
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
