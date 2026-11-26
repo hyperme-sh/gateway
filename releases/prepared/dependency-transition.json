@@ -1,255 +1,255 @@
 {
+  "schema_version": 1,
+  "qualification_only": true,
+  "previous_contract_sha256": "b1db0da234141091bb55714c6a7dd74d01de2d07639392ea4e9cd90b31314a01",
+  "requirements": [
+    {
+      "before": "controlplane-api @ git+https://github.com/hyperme-sh/controlplane-api.git@edac59b2cc55923c983a11a451c4bed9ce53edef",
+      "after": "controlplane-api @ git+https://github.com/hyperme-sh/controlplane-api.git@316912f30dd90113ab9203eff1bc998bb89b47cf"
+    },
+    {
+      "before": "controlplane-db @ git+https://github.com/hyperme-sh/controlplane-db.git@9cfad090c48e28bc33d1a96369e7e856c203a2bf",
+      "after": "controlplane-db @ git+https://github.com/hyperme-sh/controlplane-db.git@95ef61433374274f4a4fc287e15982be6357e1cc"
+    },
+    {
+      "before": "controlplane-events @ git+https://github.com/hyperme-sh/controlplane-events.git@d8bc887460c08f30c6a1dcb951bac042bad326a7",
+      "after": "controlplane-events @ git+https://github.com/hyperme-sh/controlplane-events.git@2a49f9af5f6c4dc9d6c4ddebc83c41d6331e2c87"
+    },
+    {
+      "before": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@5675e7b617db705a7b0caf25f2d65d8a492f32b1",
+      "after": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@14355f230e15a5acf3b1283e87d5f65aceff35ba"
+    },
+    {
+      "before": "controlplane-tenancy @ git+https://github.com/hyperme-sh/controlplane-tenancy.git@09f26d3fa677b6cd8e43be3424b8e2fa793c6ba1",
+      "after": "controlplane-tenancy @ git+https://github.com/hyperme-sh/controlplane-tenancy.git@f252909af772b2c820555af36de456d46f17cfcb"
+    },
+    {
+      "before": "hypermesh-ticket @ git+https://github.com/hyperme-sh/hypermesh-ticket.git@b62224be15665abb864d0dfd660fc558fb78b23f",
+      "after": "hypermesh-ticket @ git+https://github.com/hyperme-sh/ticket.git@78cf2d163f6d04f017980e07b62f4093bb053fc5"
+    }
+  ],
+  "version_policy": "pre-0.24",
+  "dependency_versions": {
+    "controlplane-api": "0.23.0",
+    "controlplane-tenancy": "0.14.0",
+    "controlplane-identity": "0.15.0",
+    "controlplane-db": "0.1.0",
+    "controlplane-events": "0.1.0",
+    "hypermesh-ticket": "0.1.0"
+  },
+  "consumer_adaptations": {
+    "hypermesh_gateway_service/app.py": {
+      "before_sha256": "34ff191285b498687225b5c7aa597e747530b15d7109879a36de7a77d1e269ec",
+      "after_sha256": "2066a6dcb2306baf38f5a6cadbf40659d3ec7d51f0e15310ed8fe57b6ab5af89",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes. Validate the retained WireGuard public identity before the Gateway listener becomes available.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py; tests/test_key_custody.py"
+    },
+    "hypermesh_gateway_service/posture.py": {
+      "before_sha256": "d4adb4ee599c64af597e2eec69ddb62a496f36dd619c02a686253475eab727ec",
+      "after_sha256": "0ca1e035a990bc0ca753026b88d1ca210ffb24b2d1adccd55f2696f396505b83",
+      "reason": "Router verbs keep certificate checks and skip the WireGuard peer because they do not command the host.",
+      "regression_test": "tests/test_router_verbs.py"
+    },
+    "hypermesh_gateway_service/renter_auth.py": {
+      "before_sha256": "085f612fa7169ab97e4dca8fb532c09f4de16a0517865bfa9dde2f1be09c07dc",
+      "after_sha256": "76e869be5e170dc00253727ff7221276cd87c8d52da3222d63509e8f92750078",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Refuse original browser-run tokens on paid and bootstrap paths. Apply verified account state when the tunnel lookup is unavailable.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py; tests/test_renter_auth.py"
+    },
+    "hypermesh_gateway_service/routes.py": {
+      "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
+      "after_sha256": "c47a954676abf7b4a0407117fb0dc7cea8e9894ab035b527b1cc51774dc2ad27",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete. Refresh the authoritative ticket snapshot for a known tenant after a key index miss without waiting for tunnel registration. Support the host-managed WireGuard peer service without application key custody.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot; tests/test_wireguard_host.py"
+    },
+    "hypermesh_gateway_service/wg.py": {
+      "before_sha256": "4b88a9dca504b011643c396bbdb5117e7224cebae87bb9b9209ff533c1221d0c",
+      "after_sha256": "3bd7997b4da284b3ceb75020ee71f999c96f7dd53ed5d78f6e8937c2db32a293",
+      "reason": "Report skipped and failed WireGuard apply attempts to the caller. Reconcile a missing or changed kernel peer route for an existing allocation. Support the host-managed WireGuard peer service without application key custody.",
+      "regression_test": "tests/test_wg_apply.py::test_skipped_or_failed_apply_is_not_reported_as_applied; tests/test_wg_apply.py; tests/test_wireguard_host.py"
+    },
+    "hypermesh_gateway_service/control_plane.py": {
+      "before_sha256": "d924d899fb8efd544d010933ce64fb2000855d180aac9a37dade866e36fb19cc",
+      "after_sha256": "41b0904d81ab09ec106cc5de9e1ec6a0129cf22e13415e69f37629896b7a96c8",
+      "reason": "Consume verified runtime counts over an authenticated guest channel; preserve pending work and owner settlement authority.",
+      "regression_test": "tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
+    },
+    "hypermesh_gateway_service/receipts.py": {
+      "before_sha256": "68c2a367c6ba8f0066efc34f34edee998bd991f08ce7efa6c7aa397332393544",
+      "after_sha256": "064e89feaa9944bc606008c78f9122a61e1d0962d9f62892655d2912e1039f88",
+      "reason": "Enforce validated organization and purpose scope on paid tickets and durable IR receipts. Qualification only; live acceptance remains separate.",
+      "regression_test": "tests/test_key_scope_isolation.py"
+    },
+    "hypermesh_gateway_service/route_resolve.py": {
+      "before_sha256": "32c4f76cfcfe7cc1c7b458ef259fbb45a89812b395516569d9514189018e95c4",
+      "after_sha256": "f7a56ec9a906f99080a5dd55cd2f139b87a047d9a74d2a16963301a5da9f1520",
+      "reason": "Enforce validated organization and purpose scope on paid tickets and durable IR receipts. Qualification only; live acceptance remains separate.",
+      "regression_test": "tests/test_key_scope_isolation.py"
+    },
+    "hypermesh_gateway_service/tickets.py": {
+      "before_sha256": "bc6aea3674efd7283ff5717479f47a7d430c449b7227aebff41618990926ae23",
+      "after_sha256": "edef2f2ec9f440d635ed7bed5c0658d95ce2bfe350c47bb7d34498510d0a27c0",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Require an explicit watch before a request can trigger a tenant snapshot refresh.",
+      "regression_test": "tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot"
+    },
+    "hypermesh_gateway_service/body_limit.py": {
+      "before_sha256": "0b6b0e1efcdd0d0602d3e5123b035d4a69650961e6a9559f07c3c509fccdf35c",
+      "after_sha256": "8f8049a92a64100eee54885b1c440b2f5e870dd961583a0daacb1008027d02eb",
+      "reason": "Measure request bytes before parsing for admission and usage accounting.",
+      "regression_test": "tests/test_backlog_regressions.py"
+    },
+    "hypermesh_gateway_service/chat.py": {
+      "before_sha256": "0453f76d5871962f5e93b44b70f6de6425edae5c01de6c186a7ac70af0823029",
+      "after_sha256": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
+      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
+      "regression_test": "tests/test_digest_meters.py"
+    },
+    "hypermesh_gateway_service/metrics.py": {
+      "before_sha256": "9ad3996aa45c000d8bc851682c3feb4b154a281d9818abe4101b00c34bdaa5af",
+      "after_sha256": "5b9373be153187900b33fe425bcf1fac45cf41fe52ed3e12dda3457798049afd",
+      "reason": "Reserve queue capacity before forwarding and bound backlog drain work.",
+      "regression_test": "tests/test_backlog_regressions.py"
+    },
+    "hypermesh_gateway_service/safety.py": {
+      "before_sha256": "c804ae56fa953f20c7c22d7fff502e95cba7f9a4f319b7f58000d01d51159313",
+      "after_sha256": "fd6e21d0e080822826497110c5dc77d058f447e1483ceca914d74c748195c49f",
+      "reason": "Bound protective-context checks without repeated prefix scans.",
+      "regression_test": "tests/test_backlog_regressions.py; tests/test_safety_screening.py"
+    },
+    "hypermesh_gateway_service/__init__.py": {
+      "before_sha256": "1591ea6766941626d5a0c904c1475cca1d2264e91a717fd149ab702cbc27c08d",
+      "after_sha256": "22f6f1b740fbed6991757aeefdf857ab997a2eb8899a9705c72019bddd00008d",
+      "reason": "Expose the approved runtime version.",
+      "regression_test": "tests_tools/test_release_export.py"
+    }
+  },
   "added_files": {
+    "hypermesh_gateway_service/verbs.py": {
+      "sha256": "44cbc184d70f84d05a82befe3901b3021bf7862a8c9d1e82244657f1ff1d48c0",
+      "reason": "Process-local router prompt verbs. Unwired verbs return wired false and change nothing. Each caller can exclude at most 32 hosts.",
+      "regression_test": "tests/test_router_verbs.py"
+    },
+    "hypermesh_gateway_service/retained_privacy.py": {
+      "sha256": "873cc8b96334ff4758e431769c10740b66c56d812e31988e0e0cbf11a88d1799",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py"
+    },
     "hypermesh_gateway_service/account_closure.py": {
+      "sha256": "2bda8bc403a49dcc7de0caeeae42e0b51a6564049162eeddcda4bc80c0476f3f",
       "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py",
-      "sha256": "2bda8bc403a49dcc7de0caeeae42e0b51a6564049162eeddcda4bc80c0476f3f"
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
     },
     "hypermesh_gateway_service/account_ledger.py": {
+      "sha256": "c27e3fb9208d28cc8dd67dbb4942c7a4be262963dff2a81655839a1ea8cc332f",
       "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py",
-      "sha256": "c27e3fb9208d28cc8dd67dbb4942c7a4be262963dff2a81655839a1ea8cc332f"
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
     },
     "hypermesh_gateway_service/account_owners.py": {
+      "sha256": "7d9a0103ab38e4abdee0a1d72f34623d002a9a466f43dbd7d9cd632338e3df20",
       "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py",
-      "sha256": "7d9a0103ab38e4abdee0a1d72f34623d002a9a466f43dbd7d9cd632338e3df20"
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py"
+    },
+    "hypermesh_gateway_service/history.py": {
+      "sha256": "7ca71b670ecf33d6d43cfd600a467719cc4fedc4b794d49e44b8fee56c1e8eeb",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+    },
+    "hypermesh_gateway_service/models.py": {
+      "sha256": "3f901e1f575518fddafdac25bfac01dba22e4df131a53b289df7604885885bdd",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+    },
+    "hypermesh_gateway_service/private_storage.py": {
+      "sha256": "4ea606a7733b7ba6b9864b07049ffc7c705de20fe7c02196773b2dc8ac1ece4a",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py"
+    },
+    "hypermesh_gateway_service/training.py": {
+      "sha256": "0b7a68d9050be6dc3693ecda412dabf4634a03473252ad8d68456f504b2d8080",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+    },
+    "hypermesh_gateway_service/wg_identity.py": {
+      "sha256": "baea3c22847bbd6d64df49debd408d28790d4a12bb69745097df5e89955200d7",
+      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration. Fail closed on a missing or mismatched local key and preserve the same public-only identity across a fenced pair. Support the host-managed WireGuard peer service without application key custody.",
+      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py; tests/test_wireguard_host.py"
+    },
+    "hypermesh_gateway_service/ticket_verifier.py": {
+      "sha256": "2ec316e11963d88f0a87f596ba5b4c1032d2c1bbe5504f9b2e40364b3880349e",
+      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration.",
+      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py"
     },
     "hypermesh_gateway_service/digest_meters.py": {
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
       "sha256": "1e040cccb33e58ff2d82ac4f2c1b9592b0c5876fda784d4e167c5c72ff7c7fa2"
     },
-    "hypermesh_gateway_service/history.py": {
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py",
-      "sha256": "7ca71b670ecf33d6d43cfd600a467719cc4fedc4b794d49e44b8fee56c1e8eeb"
-    },
-    "hypermesh_gateway_service/models.py": {
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py",
-      "sha256": "3f901e1f575518fddafdac25bfac01dba22e4df131a53b289df7604885885bdd"
-    },
-    "hypermesh_gateway_service/phone_kernel.py": {
-      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
-      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py",
-      "sha256": "a026b8319ca8f697f3e1f9cfb51c488ad11b2156c304c374f914315c5690a07a"
-    },
-    "hypermesh_gateway_service/phone_mesh.py": {
-      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
-      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py",
-      "sha256": "8ab08d1782955b98e7055b170884008365f0f161a6067c04218d2f0b9d807982"
-    },
-    "hypermesh_gateway_service/phone_routes.py": {
-      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
-      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py",
-      "sha256": "94ac7bc126b07eb1823a970c0393a78aac413e229a289a8b16a5bde17049c269"
-    },
-    "hypermesh_gateway_service/private_storage.py": {
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py",
-      "sha256": "4ea606a7733b7ba6b9864b07049ffc7c705de20fe7c02196773b2dc8ac1ece4a"
-    },
-    "hypermesh_gateway_service/retained_privacy.py": {
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py",
-      "sha256": "873cc8b96334ff4758e431769c10740b66c56d812e31988e0e0cbf11a88d1799"
-    },
-    "hypermesh_gateway_service/ticket_verifier.py": {
-      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration.",
-      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py",
-      "sha256": "2ec316e11963d88f0a87f596ba5b4c1032d2c1bbe5504f9b2e40364b3880349e"
-    },
-    "hypermesh_gateway_service/training.py": {
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py",
-      "sha256": "0b7a68d9050be6dc3693ecda412dabf4634a03473252ad8d68456f504b2d8080"
-    },
     "hypermesh_gateway_service/trusted_meter/__init__.py": {
+      "sha256": "73ca7617d508eb4aa0a83ce7be2f63ac52937c59d9c9b04ba063aa2881b07b4c",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "73ca7617d508eb4aa0a83ce7be2f63ac52937c59d9c9b04ba063aa2881b07b4c"
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/trusted_meter/authority.py": {
+      "sha256": "aa28893d92924eeb2eb4cefadedacbcf716a7616b4a1de89df38c56e4f0e0767",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "aa28893d92924eeb2eb4cefadedacbcf716a7616b4a1de89df38c56e4f0e0767"
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/trusted_meter/client.py": {
+      "sha256": "31a393bc000864cad21e64bc253287ceaae7c9de16ff520afdb404be4b5f0189",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "31a393bc000864cad21e64bc253287ceaae7c9de16ff520afdb404be4b5f0189"
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
     "hypermesh_gateway_service/trusted_meter/journal.py": {
-      "reason": "Consume verified runtime counts over an authenticated guest channel; preserve pending work and owner settlement authority.",
-      "regression_test": "tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "48ecadccd97ce45fa6b0ad985b9afc698f867ef76c2f4ffdff7d069ff6ca7c34"
-    },
-    "hypermesh_gateway_service/trusted_meter/policy.py": {
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "80c1e59dc49f9dee45e55640414b5aa4dc3a52edce89cb9ab7441002e550922e"
-    },
-    "hypermesh_gateway_service/trusted_meter/recovery.py": {
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "500937cd4c37b5adc489cb65caf24a2d0b079bcfc00b67169bc166539f4a426c"
-    },
-    "hypermesh_gateway_service/trusted_meter/transport.py": {
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "35a5f4c20469d88f5599602b99f6221b89072e1b5d19b8495ae13371d94c7ab5"
-    },
-    "hypermesh_gateway_service/trusted_meter/wire.py": {
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py",
-      "sha256": "b04820e565c181e26087f3d877be36368e7f8362239861cbc5413df9604bd90c"
-    },
-    "hypermesh_gateway_service/verbs.py": {
-      "reason": "Process-local router prompt verbs. Unwired verbs return wired false and change nothing. Each caller can exclude at most 32 hosts.",
-      "regression_test": "tests/test_router_verbs.py",
-      "sha256": "44cbc184d70f84d05a82befe3901b3021bf7862a8c9d1e82244657f1ff1d48c0"
-    },
-    "hypermesh_gateway_service/wg_identity.py": {
-      "reason": "Public ticket verification and durable local WireGuard key custody with compatible public registration. Fail closed on a missing or mismatched local key and preserve the same public-only identity across a fenced pair. Support the host-managed WireGuard peer service without application key custody.",
-      "regression_test": "tests/test_key_custody.py; tests/test_hypermesh_gateway.py; tests/test_wireguard_host.py",
-      "sha256": "baea3c22847bbd6d64df49debd408d28790d4a12bb69745097df5e89955200d7"
-    },
-    "hypermesh_gateway_service/wireguard_host.py": {
-      "reason": "Define the local keyless WireGuard peer API and the host-only interface handler.",
-      "regression_test": "tests/test_wireguard_host.py",
-      "sha256": "6f7776ee86484f3b54946b507f586a899086dc8d95c41b250a54cdb010878c27"
-    }
-  },
-  "consumer_adaptations": {
-    "hypermesh_gateway_service/__init__.py": {
-      "after_sha256": "22f6f1b740fbed6991757aeefdf857ab997a2eb8899a9705c72019bddd00008d",
-      "before_sha256": "1591ea6766941626d5a0c904c1475cca1d2264e91a717fd149ab702cbc27c08d",
-      "reason": "Expose the approved runtime version.",
-      "regression_test": "tests_tools/test_release_export.py"
-    },
-    "hypermesh_gateway_service/app.py": {
-      "after_sha256": "2066a6dcb2306baf38f5a6cadbf40659d3ec7d51f0e15310ed8fe57b6ab5af89",
-      "before_sha256": "34ff191285b498687225b5c7aa597e747530b15d7109879a36de7a77d1e269ec",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes. Validate the retained WireGuard public identity before the Gateway listener becomes available.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py; tests/test_key_custody.py"
-    },
-    "hypermesh_gateway_service/body_limit.py": {
-      "after_sha256": "8f8049a92a64100eee54885b1c440b2f5e870dd961583a0daacb1008027d02eb",
-      "before_sha256": "0b6b0e1efcdd0d0602d3e5123b035d4a69650961e6a9559f07c3c509fccdf35c",
-      "reason": "Measure request bytes before parsing for admission and usage accounting.",
-      "regression_test": "tests/test_backlog_regressions.py"
-    },
-    "hypermesh_gateway_service/chat.py": {
-      "after_sha256": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
-      "before_sha256": "0453f76d5871962f5e93b44b70f6de6425edae5c01de6c186a7ac70af0823029",
-      "reason": "Durable named count batches, authoritative lease selection and pre-close drain.",
-      "regression_test": "tests/test_digest_meters.py"
-    },
-    "hypermesh_gateway_service/control_plane.py": {
-      "after_sha256": "41b0904d81ab09ec106cc5de9e1ec6a0129cf22e13415e69f37629896b7a96c8",
-      "before_sha256": "d924d899fb8efd544d010933ce64fb2000855d180aac9a37dade866e36fb19cc",
+      "sha256": "48ecadccd97ce45fa6b0ad985b9afc698f867ef76c2f4ffdff7d069ff6ca7c34",
       "reason": "Consume verified runtime counts over an authenticated guest channel; preserve pending work and owner settlement authority.",
       "regression_test": "tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
-    "hypermesh_gateway_service/metrics.py": {
-      "after_sha256": "5b9373be153187900b33fe425bcf1fac45cf41fe52ed3e12dda3457798049afd",
-      "before_sha256": "9ad3996aa45c000d8bc851682c3feb4b154a281d9818abe4101b00c34bdaa5af",
-      "reason": "Reserve queue capacity before forwarding and bound backlog drain work.",
-      "regression_test": "tests/test_backlog_regressions.py"
+    "hypermesh_gateway_service/trusted_meter/policy.py": {
+      "sha256": "80c1e59dc49f9dee45e55640414b5aa4dc3a52edce89cb9ab7441002e550922e",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
-    "hypermesh_gateway_service/posture.py": {
-      "after_sha256": "0ca1e035a990bc0ca753026b88d1ca210ffb24b2d1adccd55f2696f396505b83",
-      "before_sha256": "d4adb4ee599c64af597e2eec69ddb62a496f36dd619c02a686253475eab727ec",
-      "reason": "Router verbs keep certificate checks and skip the WireGuard peer because they do not command the host.",
-      "regression_test": "tests/test_router_verbs.py"
+    "hypermesh_gateway_service/trusted_meter/transport.py": {
+      "sha256": "35a5f4c20469d88f5599602b99f6221b89072e1b5d19b8495ae13371d94c7ab5",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
-    "hypermesh_gateway_service/receipts.py": {
-      "after_sha256": "064e89feaa9944bc606008c78f9122a61e1d0962d9f62892655d2912e1039f88",
-      "before_sha256": "68c2a367c6ba8f0066efc34f34edee998bd991f08ce7efa6c7aa397332393544",
-      "reason": "Enforce validated organization and purpose scope on paid tickets and durable IR receipts. Qualification only; live acceptance remains separate.",
-      "regression_test": "tests/test_key_scope_isolation.py"
+    "hypermesh_gateway_service/trusted_meter/wire.py": {
+      "sha256": "b04820e565c181e26087f3d877be36368e7f8362239861cbc5413df9604bd90c",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
-    "hypermesh_gateway_service/renter_auth.py": {
-      "after_sha256": "76e869be5e170dc00253727ff7221276cd87c8d52da3222d63509e8f92750078",
-      "before_sha256": "085f612fa7169ab97e4dca8fb532c09f4de16a0517865bfa9dde2f1be09c07dc",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Refuse original browser-run tokens on paid and bootstrap paths. Apply verified account state when the tunnel lookup is unavailable.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py; tests/test_renter_auth.py"
+    "hypermesh_gateway_service/trusted_meter/recovery.py": {
+      "sha256": "500937cd4c37b5adc489cb65caf24a2d0b079bcfc00b67169bc166539f4a426c",
+      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences.",
+      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py"
     },
-    "hypermesh_gateway_service/route_resolve.py": {
-      "after_sha256": "f7a56ec9a906f99080a5dd55cd2f139b87a047d9a74d2a16963301a5da9f1520",
-      "before_sha256": "32c4f76cfcfe7cc1c7b458ef259fbb45a89812b395516569d9514189018e95c4",
-      "reason": "Enforce validated organization and purpose scope on paid tickets and durable IR receipts. Qualification only; live acceptance remains separate.",
-      "regression_test": "tests/test_key_scope_isolation.py"
+    "hypermesh_gateway_service/phone_mesh.py": {
+      "sha256": "8ab08d1782955b98e7055b170884008365f0f161a6067c04218d2f0b9d807982",
+      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
     },
-    "hypermesh_gateway_service/routes.py": {
-      "after_sha256": "c47a954676abf7b4a0407117fb0dc7cea8e9894ab035b527b1cc51774dc2ad27",
-      "before_sha256": "0c74b3e5ecd3cefe31a6475cecddf43bdcf571f932879b9d0c8be7b294ef5c92",
-      "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Report aggregate allocated and applied peer counts when reconciliation is incomplete. Refresh the authoritative ticket snapshot for a known tenant after a key index miss without waiting for tunnel registration. Support the host-managed WireGuard peer service without application key custody.",
-      "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_wg_apply.py; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot; tests/test_wireguard_host.py"
+    "hypermesh_gateway_service/phone_kernel.py": {
+      "sha256": "a026b8319ca8f697f3e1f9cfb51c488ad11b2156c304c374f914315c5690a07a",
+      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
     },
-    "hypermesh_gateway_service/safety.py": {
-      "after_sha256": "fd6e21d0e080822826497110c5dc77d058f447e1483ceca914d74c748195c49f",
-      "before_sha256": "c804ae56fa953f20c7c22d7fff502e95cba7f9a4f319b7f58000d01d51159313",
-      "reason": "Bound protective-context checks without repeated prefix scans.",
-      "regression_test": "tests/test_backlog_regressions.py; tests/test_safety_screening.py"
+    "hypermesh_gateway_service/phone_routes.py": {
+      "sha256": "94ac7bc126b07eb1823a970c0393a78aac413e229a289a8b16a5bde17049c269",
+      "reason": "Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes.",
+      "regression_test": "tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py"
     },
-    "hypermesh_gateway_service/tickets.py": {
-      "after_sha256": "edef2f2ec9f440d635ed7bed5c0658d95ce2bfe350c47bb7d34498510d0a27c0",
-      "before_sha256": "bc6aea3674efd7283ff5717479f47a7d430c449b7227aebff41618990926ae23",
-      "reason": "Durable named count batches, authoritative lease selection and pre-close drain. Refresh ticket and fingerprint authority through tunnel registration failures while retaining unchanged peer bindings. Require an explicit watch before a request can trigger a tenant snapshot refresh.",
-      "regression_test": "tests/test_digest_meters.py; tests/test_hypermesh_gateway.py::test_refresh_known_tenants_pulls_keys_and_revocations_when_tunnels_fail; tests/test_backlog_regressions.py::test_key_cache_miss_pulls_known_tenant_snapshot"
-    },
-    "hypermesh_gateway_service/wg.py": {
-      "after_sha256": "3bd7997b4da284b3ceb75020ee71f999c96f7dd53ed5d78f6e8937c2db32a293",
-      "before_sha256": "4b88a9dca504b011643c396bbdb5117e7224cebae87bb9b9209ff533c1221d0c",
-      "reason": "Report skipped and failed WireGuard apply attempts to the caller. Reconcile a missing or changed kernel peer route for an existing allocation. Support the host-managed WireGuard peer service without application key custody.",
-      "regression_test": "tests/test_wg_apply.py::test_skipped_or_failed_apply_is_not_reported_as_applied; tests/test_wg_apply.py; tests/test_wireguard_host.py"
+    "hypermesh_gateway_service/wireguard_host.py": {
+      "sha256": "6f7776ee86484f3b54946b507f586a899086dc8d95c41b250a54cdb010878c27",
+      "reason": "Define the local keyless WireGuard peer API and the host-only interface handler.",
+      "regression_test": "tests/test_wireguard_host.py"
     }
   },
-  "dependency_versions": {
-    "controlplane-api": "0.23.0",
-    "controlplane-db": "0.1.0",
-    "controlplane-events": "0.1.0",
-    "controlplane-identity": "0.15.0",
-    "controlplane-tenancy": "0.14.0",
-    "hypermesh-ticket": "0.1.0"
-  },
-  "previous_contract_sha256": "b1db0da234141091bb55714c6a7dd74d01de2d07639392ea4e9cd90b31314a01",
-  "qualification_only": true,
   "removed_requirements": [
     {
       "before": "controlplane-core @ git+https://github.com/hyperme-sh/controlplane-core.git@8f66f5681b28e60a619344779252a5a048d39486",
       "reason": "Gateway imports no legacy core; removing it excludes the transitive provider implementation.",
       "regression_test": "tests_tools/test_open_boundary.py"
     }
-  ],
-  "requirements": [
-    {
-      "after": "controlplane-api @ git+https://github.com/hyperme-sh/controlplane-api.git@316912f30dd90113ab9203eff1bc998bb89b47cf",
-      "before": "controlplane-api @ git+https://github.com/hyperme-sh/controlplane-api.git@edac59b2cc55923c983a11a451c4bed9ce53edef"
-    },
-    {
-      "after": "controlplane-db @ git+https://github.com/hyperme-sh/controlplane-db.git@95ef61433374274f4a4fc287e15982be6357e1cc",
-      "before": "controlplane-db @ git+https://github.com/hyperme-sh/controlplane-db.git@9cfad090c48e28bc33d1a96369e7e856c203a2bf"
-    },
-    {
-      "after": "controlplane-events @ git+https://github.com/hyperme-sh/controlplane-events.git@2a49f9af5f6c4dc9d6c4ddebc83c41d6331e2c87",
-      "before": "controlplane-events @ git+https://github.com/hyperme-sh/controlplane-events.git@d8bc887460c08f30c6a1dcb951bac042bad326a7"
-    },
-    {
-      "after": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@14355f230e15a5acf3b1283e87d5f65aceff35ba",
-      "before": "controlplane-identity @ git+https://github.com/hyperme-sh/controlplane-identity.git@5675e7b617db705a7b0caf25f2d65d8a492f32b1"
-    },
-    {
-      "after": "controlplane-tenancy @ git+https://github.com/hyperme-sh/controlplane-tenancy.git@f252909af772b2c820555af36de456d46f17cfcb",
-      "before": "controlplane-tenancy @ git+https://github.com/hyperme-sh/controlplane-tenancy.git@09f26d3fa677b6cd8e43be3424b8e2fa793c6ba1"
-    },
-    {
-      "after": "hypermesh-ticket @ git+https://github.com/hyperme-sh/ticket.git@78cf2d163f6d04f017980e07b62f4093bb053fc5",
-      "before": "hypermesh-ticket @ git+https://github.com/hyperme-sh/hypermesh-ticket.git@b62224be15665abb864d0dfd660fc558fb78b23f"
-    }
-  ],
-  "schema_version": 1,
-  "version_policy": "pre-0.24"
+  ]
 }
