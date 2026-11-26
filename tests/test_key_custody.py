@@ -1,6 +1,7 @@
 import base64
 from datetime import UTC, datetime, timedelta
 import os
+from pathlib import Path
 import uuid
 
 import httpx
@@ -81,3 +82,51 @@ def test_existing_local_key_still_refuses_remote_private_material():
     with pytest.raises(ValueError, match="private key material"):
         local_identity([{"status": "allocated", "server_public_key": public,
                          "server_private_key": private}], registration_supported=True)
+
+
+async def test_retained_identity_required_before_starting_gateway(app, monkeypatch):
+    from asgi_lifespan import LifespanManager
+
+    private = base64.b64encode(bytes(range(32))).decode()
+    monkeypatch.setenv("HYPERMESH_WG_EXPECTED_PUBLIC_KEY", public_key(private))
+    path = Path(os.environ["HYPERMESH_WG_PRIVATE_KEY_FILE"])
+    with pytest.raises(ValueError, match="Provision the retained WireGuard identity"):
+        async with LifespanManager(app):
+            pytest.fail("Gateway started without the retained identity")
+    assert not path.exists()
+    assert not path.with_suffix(".lock").exists()
+
+
+def test_retained_identity_preserves_the_same_key_across_the_pair(monkeypatch, tmp_path):
+    private = base64.b64encode(bytes(range(32))).decode()
+    public = public_key(private)
+    monkeypatch.setenv("HYPERMESH_WG_EXPECTED_PUBLIC_KEY", public)
+    for host in ("active", "passive"):
+        path = tmp_path / host
+        path.write_text(private + "\n")
+        path.chmod(0o600)
+        monkeypatch.setenv("HYPERMESH_WG_PRIVATE_KEY_FILE", str(path))
+        assert local_identity([], registration_supported=True) == (private, public)
+        assert local_identity([{"status": "allocated", "server_public_key": public}],
+                              registration_supported=True) == (private, public)
+        assert path.read_text() == private + "\n"
+        assert not path.with_suffix(".lock").exists()
+
+
+def test_retained_identity_refuses_wrong_local_or_plane_identity(monkeypatch):
+    private = base64.b64encode(bytes(range(32))).decode()
+    public = public_key(private)
+    other_public = public_key(base64.b64encode(bytes(range(1, 33))).decode())
+    path = Path(os.environ["HYPERMESH_WG_PRIVATE_KEY_FILE"])
+    path.write_text(private)
+    path.chmod(0o600)
+    monkeypatch.setenv("HYPERMESH_WG_EXPECTED_PUBLIC_KEY", other_public)
+    with pytest.raises(ValueError, match="differs from its configured public key"):
+        local_identity([], registration_supported=True)
+    monkeypatch.setenv("HYPERMESH_WG_EXPECTED_PUBLIC_KEY", public)
+    with pytest.raises(ValueError, match="public-only Plane registration"):
+        local_identity([], registration_supported=False)
+    with pytest.raises(ValueError, match="differs from assigned peers"):
+        local_identity([{"status": "allocated", "server_public_key": other_public}],
+                       registration_supported=True)
+    assert path.read_text() == private
