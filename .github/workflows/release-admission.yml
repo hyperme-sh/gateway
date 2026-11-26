@@ -2,18 +2,28 @@ name: Release admission
 # Development PRs use version-policy.yml and package tests, without release history.
 on:
   push:
-    tags: ['**']
+    tags: ['v*']
   workflow_dispatch:
     inputs:
       version:
-        description: Exact release version (for example 0.24.1)
+        description: Exact release version (for example 0.1.0)
         required: true
         type: string
 permissions:
   contents: read
 jobs:
+  first-oci-admission:
+    if: vars.SPANOPTICON_RELEASE_BASELINE_SHA == ''
+    permissions:
+      actions: read
+      contents: read
+    uses: hyperme-sh/spanopticon/.github/workflows/initial-oci-release.yml@596800be86e5c4d22ef574e9e1a8cd994f73a11c
+    with:
+      release-line: '0.1'
+      requested-version: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version || '' }}
   release-admission:
-    uses: hyperme-sh/spanopticon/.github/workflows/component-release.yml@5917e757ec1ca3c6ab30b4d6f083bcd6c4077606
+    if: vars.SPANOPTICON_RELEASE_BASELINE_SHA != ''
+    uses: hyperme-sh/spanopticon/.github/workflows/component-release.yml@596800be86e5c4d22ef574e9e1a8cd994f73a11c
     with:
       release-line: '0.1'
       baseline-ref: ${{ vars.SPANOPTICON_RELEASE_BASELINE_SHA }}

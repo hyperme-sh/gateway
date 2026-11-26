@@ -9,4 +9,15 @@ Public container publication and the remaining Apache repositories are tracked i
 
 Pull-request and `main` checks still build and test the source, including any clean-source or secret scan already in those jobs, and then discard temporary distribution files. They do not retain or publish package artifacts.
 
-Tag-time version admission, when used, stays in `.github/workflows/release-admission.yml`. That workflow does not publish. The former package release-channel workflow has been removed.
+For the first container release, the declaration in `releases/candidate` names
+the immutable Gateway image and the successful owner main build that qualified
+it. Run `release-admission.yml` from main with the exact version to verify the
+declaration and build before requesting the stable source tag. A subsequent
+push of that tag repeats the read-only check.
+
+Dispatch `release-publish.yml` on the authorized stable tag with the approved
+OCI manifest digest. It repeats admission on that tag, verifies the image
+revision and copies the manifest byte-for-byte to the GHCR version tag. An
+existing matching tag can be verified again. Production ACR publication and
+the production channel use the existing Infra ownership and require separate
+authorization.

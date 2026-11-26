@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "line": "0.1",
+  "components": {
+    "hypermesh-gateway": {
+      "version": "0.1.0",
+      "contract": "contract.json",
+      "contract_sha256": "b5b5d6d283ff49ba83ff05e0e4e7e7d862b8953ea48185e6e1fddc7d1ce3f619",
+      "artifact": {
+        "kind": "container",
+        "uri": "ghcr.io/hyperme-sh/hypermesh-gateway/runtime@sha256:a0b873f81b5d63e5057982fb5bc67a59724fe17e0692fda6bf7896fa30fa6e18",
+        "sha256": "a0b873f81b5d63e5057982fb5bc67a59724fe17e0692fda6bf7896fa30fa6e18"
+      }
+    }
+  }
+}
