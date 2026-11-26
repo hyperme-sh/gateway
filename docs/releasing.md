@@ -22,3 +22,10 @@ revision and copies the manifest byte-for-byte to the GHCR version tag. An
 existing matching tag can be verified again. Production ACR publication and
 the production channel use the existing Infra ownership and require separate
 authorization.
+
+After the owner authorizes the specific production version and digest, the
+protected `publish-azure-runtime.yml` workflow on main uses the dedicated
+Gateway publisher to mirror the immutable release to the existing ACR
+repository. It verifies the stable source and image, then locks the ACR version
+against writes and deletion. The deployment owner verifies the recorded digest
+when preparing the VM rollout. TEST follows its moving channel.
