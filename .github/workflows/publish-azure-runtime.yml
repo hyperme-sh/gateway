@@ -24,7 +24,7 @@ concurrency:
 jobs:
   publish:
     if: github.repository == 'hyperme-sh/gateway' && github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, linux, x64, debrunner]
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted", "linux", "x64", "debrunner"]') || 'ubuntu-24.04' }}
     timeout-minutes: 20
     permissions:
       contents: read

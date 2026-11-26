@@ -18,6 +18,14 @@ def test_dispatch_defaults_to_verification_and_passes_the_exact_mode():
     assert "verify_identity_only: ${{ inputs.verify_identity_only }}" in caller
 
 
+def test_registry_publisher_uses_the_existing_release_runner_policy():
+    registry = (WORKFLOWS / "publish-azure-runtime.yml").read_text()
+    stable = (WORKFLOWS / "release-publish.yml").read_text()
+    find_runner = r"^    runs-on: .*$"
+    assert re.findall(find_runner, registry, re.M) == re.findall(find_runner, stable, re.M)
+    assert len(re.findall(find_runner, registry, re.M)) == 1
+
+
 @pytest.mark.parametrize("verify_only", (True, False))
 def test_only_publication_mode_reaches_azure_and_the_registries(verify_only):
     workflow = (WORKFLOWS / "publish-azure-runtime.yml").read_text()
