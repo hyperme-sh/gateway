@@ -38,3 +38,13 @@ jobs:
             --output "$scratch/context" --source-sha "$GITHUB_SHA"
           docker build --build-arg "SOURCE_SHA=$GITHUB_SHA" -t "$image" "$scratch/context"
           python3 scripts/check_runtime_layers.py --image "$image"
+
+  retained-schema:
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted", "linux", "x64", "debrunner"]') || 'ubuntu-24.04' }}
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Verify the retained schema and grants in a disposable PostgreSQL cluster
+        run: bash scripts/check-retained-postgres.sh
