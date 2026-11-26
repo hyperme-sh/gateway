@@ -1,0 +1,62 @@
+name: Publish the first Gateway stable runtime
+on:
+  workflow_dispatch:
+    inputs:
+      expected_digest:
+        description: Exact authorized OCI manifest digest
+        type: string
+        required: true
+permissions: {}
+concurrency:
+  group: gateway-stable-runtime-publication
+  cancel-in-progress: false
+jobs:
+  admission:
+    if: github.ref_type == 'tag' && vars.SPANOPTICON_RELEASE_BASELINE_SHA == ''
+    permissions:
+      actions: read
+      contents: read
+    uses: hyperme-sh/spanopticon/.github/workflows/initial-oci-release.yml@596800be86e5c4d22ef574e9e1a8cd994f73a11c
+    with:
+      release-line: '0.1'
+      requested-version: ${{ github.ref_name }}
+
+  publish:
+    needs: admission
+    permissions:
+      packages: write
+    runs-on: ${{ github.event.repository.private && fromJSON('["self-hosted", "linux", "x64", "debrunner"]') || 'ubuntu-24.04' }}
+    timeout-minutes: 15
+    steps:
+      - name: Copy the verified manifest to the authorized stable tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION_TAG: ${{ github.ref_name }}
+          EXPECTED_DIGEST: ${{ inputs.expected_digest }}
+          ADMITTED_IMAGE: ${{ needs.admission.outputs.image }}
+          SOURCE_REVISION: ${{ needs.admission.outputs.source-revision }}
+        run: |
+          set -euo pipefail
+          repository=ghcr.io/hyperme-sh/hypermesh-gateway/runtime
+          [[ "$VERSION_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
+          [[ "$EXPECTED_DIGEST" =~ ^sha256:[0-9a-f]{64}$ && "$SOURCE_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          test "$ADMITTED_IMAGE" = "$repository@$EXPECTED_DIGEST"
+
+          export DOCKER_CONFIG=$(mktemp -d "$RUNNER_TEMP/gateway-stable-login.XXXXXX")
+          trap 'rm -rf -- "$DOCKER_CONFIG"' EXIT
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker pull --quiet --platform linux/amd64 "$ADMITTED_IMAGE"
+          test "$(docker image inspect "$ADMITTED_IMAGE" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}')" = "$SOURCE_REVISION"
+          target="$repository:$VERSION_TAG"
+          if docker manifest inspect "$target" >/dev/null 2> "$DOCKER_CONFIG/lookup.err"; then
+            echo 'Verifying the existing stable tag'
+          elif [[ "$(cat "$DOCKER_CONFIG/lookup.err")" == "no such manifest: $target" ||
+                    "$(cat "$DOCKER_CONFIG/lookup.err")" == 'manifest unknown' ]]; then
+            docker buildx imagetools create --prefer-index=false --tag "$target" "$ADMITTED_IMAGE"
+          else
+            echo 'Unable to establish the stable tag state' >&2
+            exit 1
+          fi
+          resolved=$(docker buildx imagetools inspect "$target" --format '{{ .Manifest.Digest }}')
+          test "$resolved" = "$EXPECTED_DIGEST"
+          printf '%s identifies %s from %s\n' "$target" "$resolved" "$SOURCE_REVISION" >> "$GITHUB_STEP_SUMMARY"
