@@ -130,9 +130,9 @@
       "regression_test": "tests/test_router_verbs.py"
     },
     "hypermesh_gateway_service/retained_privacy.py": {
-      "sha256": "7124c22f9f2a237ea34756a0f4a639b4c48a5e857d2cd0b705a4f8774b289a1f",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+      "sha256": "873cc8b96334ff4758e431769c10740b66c56d812e31988e0e0cbf11a88d1799",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py"
     },
     "hypermesh_gateway_service/account_closure.py": {
       "sha256": "2bda8bc403a49dcc7de0caeeae42e0b51a6564049162eeddcda4bc80c0476f3f",
@@ -145,9 +145,9 @@
       "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
     },
     "hypermesh_gateway_service/account_owners.py": {
-      "sha256": "aba392940a83ec8b547047a5b379a1e839b0ba9d7de8f5749b828a260234c9ee",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+      "sha256": "7d9a0103ab38e4abdee0a1d72f34623d002a9a466f43dbd7d9cd632338e3df20",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py"
     },
     "hypermesh_gateway_service/history.py": {
       "sha256": "7ca71b670ecf33d6d43cfd600a467719cc4fedc4b794d49e44b8fee56c1e8eeb",
@@ -160,9 +160,9 @@
       "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
     },
     "hypermesh_gateway_service/private_storage.py": {
-      "sha256": "9a288b10a279e731a1e69687e3a86057f937b52c6280768391bc14bcf902aaed",
-      "reason": "Adopt local account retirement and retained owner operations without enabling collection.",
-      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py"
+      "sha256": "4ea606a7733b7ba6b9864b07049ffc7c705de20fe7c02196773b2dc8ac1ece4a",
+      "reason": "Adopt local account retirement and retained owner operations without enabling collection. Bind the appropriate host-refreshed credential file to new connections.",
+      "regression_test": "tests/test_account_ledger.py; tests/test_closure_receiver_identity.py; tests/test_account_owner_discovery.py, tests/test_retained_database_credentials.py"
     },
     "hypermesh_gateway_service/training.py": {
       "sha256": "0b7a68d9050be6dc3693ecda412dabf4634a03473252ad8d68456f504b2d8080",

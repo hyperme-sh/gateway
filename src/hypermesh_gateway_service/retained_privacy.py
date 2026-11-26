@@ -3,14 +3,15 @@ import argparse
 import asyncio
 from contextlib import asynccontextmanager
 import json
-import logging
 import os
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, ConfigDict, StrictBool
 from sqlalchemy import text
+from sqlalchemy.pool import NullPool
 
+from hypermesh_gateway_service.private_storage import private_engine
 from hypermesh_gateway_service.renter_auth import jwt_tenant_id, require_renter_grant, require_account_grant
 
 router = APIRouter()
@@ -32,19 +33,11 @@ def account(request, grant=None):
 
 @asynccontextmanager
 async def transaction(setting, tenant, subject, lock_prefix):
-    from sqlalchemy.ext.asyncio import create_async_engine
-    from sqlalchemy.pool import NullPool
-    from controlplane_db.session import normalize_database_url
-
     url = os.environ.get(setting)
     if not url:
         raise HTTPException(503, "Privacy store unavailable")
-    # SQLAlchemy DEBUG result rows can contain account data even with hidden parameters.
-    logger = logging.getLogger("sqlalchemy.engine.Engine.retained_privacy")
-    logger.setLevel(logging.WARNING)
-    logger.propagate = False
-    engine = create_async_engine(normalize_database_url(url), poolclass=NullPool,
-                                 logging_name="retained_privacy", hide_parameters=True)
+    passfile = os.environ.get(setting.removesuffix("_URL") + "_PASSFILE", "")
+    engine = private_engine(url, "retained_privacy", passfile=passfile, poolclass=NullPool)
     try:
         async with engine.begin() as db:
             args = {"tenant": tenant, "subject": subject}

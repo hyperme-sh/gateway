@@ -303,6 +303,15 @@ with the separate `HYPERMESH_HISTORY_DATABASE_URL` role. This operator entry
 checks the original closure receipt and retention interval before deleting
 entries and recording the purge. Reruns preserve the original purge timestamp.
 
+For host-managed credentials, set `HYPERMESH_HISTORY_DATABASE_PASSFILE` and
+`HYPERMESH_TRAINING_DATABASE_PASSFILE` to separate absolute PostgreSQL password
+file paths. Set each matching URL to its host, database and username, with no
+password or query options. Leave `PGPASSWORD` unset. The driver reads the
+appropriate file for each new connection and verifies the server hostname
+using the runtime trust store. The deployment host supplies and refreshes
+the files in a read-only mount. A file mounted by directory can be replaced
+atomically without restarting Gateway.
+
 ## Service-channel deployment overlay
 
 The deployment owner can render the gateway image from the shared

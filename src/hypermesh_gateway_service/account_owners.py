@@ -22,7 +22,8 @@ async def open_owners(state):
                 if url:
                     if not url.startswith(("postgresql://", "postgresql+asyncpg://")):
                         raise ValueError("Retained data requires PostgreSQL")
-                    engine = private_engine(url, f"hypermesh_{name}")
+                    engine = private_engine(url, f"hypermesh_{name}", passfile=os.environ.get(
+                        f"HYPERMESH_{name.upper()}_DATABASE_PASSFILE", ""))
                     engines.append(engine)
                     setattr(state, name + "_store", store(async_sessionmaker(engine, expire_on_commit=False), account_ledger=ledger))
                 await asyncio.to_thread(ledger.configure_owner, name, bool(url),
