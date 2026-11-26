@@ -3,6 +3,10 @@ name: Publish the protected Gateway runtime to Azure
 on:
   workflow_dispatch:
     inputs:
+      verify_identity_only:
+        description: Verify the issued GitHub subject and workflow without contacting Azure
+        type: boolean
+        default: true
       version:
         description: Authorized immutable Gateway release tag
         type: string
@@ -31,7 +35,44 @@ jobs:
       VERSION_TAG: ${{ inputs.version }}
       EXPECTED_DIGEST: ${{ inputs.expected_digest }}
     steps:
+      - name: Verify the actual GitHub OIDC claims for this workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          from urllib.parse import parse_qsl, urlencode, urlsplit
+          from urllib.request import Request, urlopen
+
+          issuer = "https://token.actions.githubusercontent.com"
+          audience = "api://AzureADTokenExchange"
+          endpoint = urlsplit(os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"])
+          query = urlencode([*parse_qsl(endpoint.query), ("audience", audience)])
+          request = Request(endpoint._replace(query=query).geturl(), headers={
+              "Authorization": "Bearer " + os.environ["ACTIONS_ID_TOKEN_REQUEST_TOKEN"],
+          })
+          with urlopen(request, timeout=20) as response:
+              raw = json.load(response)["value"].split(".")[1]
+          claims = json.loads(base64.urlsafe_b64decode(raw + "=" * (-len(raw) % 4)))
+          expected_workflow = "hyperme-sh/gateway/.github/workflows/publish-azure-runtime.yml@refs/heads/main"
+          expected = {
+              "iss": issuer, "aud": audience, "event_name": "workflow_dispatch",
+              "repository": "hyperme-sh/gateway", "repository_id": "1439103692",
+              "repository_owner_id": "351507761", "ref": "refs/heads/main",
+              "sub": "repo:hyperme-sh@351507761/gateway@1439103692:ref:refs/heads/main",
+              "job_workflow_ref": expected_workflow, "workflow_ref": expected_workflow,
+          }
+          observed = {name: claims.get(name) for name in expected}
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              print("GitHub-issued Gateway publisher claims", file=summary)
+              print("```json", json.dumps(observed, indent=2), "```", sep="\n", file=summary)
+          if observed != expected:
+              raise SystemExit("The issued GitHub identity differs from the dedicated Gateway publisher trust.")
+          PY
       - name: Verify the immutable release and isolate local credentials
+        if: ${{ !inputs.verify_identity_only }}
         shell: bash
         run: |
           set -euo pipefail
@@ -56,11 +97,13 @@ jobs:
             and .artifact.uri == ("ghcr.io/hyperme-sh/hypermesh-gateway/runtime@" + $digest)
           ' "$work/provenance.json" >/dev/null
       - uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906
+        if: ${{ !inputs.verify_identity_only }}
         with:
           client-id: ${{ vars.GATEWAY_PROD_PUBLISHER_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
       - name: Mirror the qualified bytes and protect the ACR version
+        if: ${{ !inputs.verify_identity_only }}
         shell: bash
         run: |
           set -euo pipefail
