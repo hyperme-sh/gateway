@@ -40,7 +40,7 @@
   "consumer_adaptations": {
     "hypermesh_gateway_service/app.py": {
       "before_sha256": "34ff191285b498687225b5c7aa597e747530b15d7109879a36de7a77d1e269ec",
-      "after_sha256": "906f4e48cac41565334fc88d4bdba722fc0880bb34eff1d0d2a8ba0f10718f0c",
+      "after_sha256": "2066a6dcb2306baf38f5a6cadbf40659d3ec7d51f0e15310ed8fe57b6ab5af89",
       "reason": "Recover original owner-anchored counts and archive interrupted history without restoring execution; preserve billing and drain fences. Add isolated AIuditor-authorized phone peers with bounded expiry and no host peer changes. Validate the retained WireGuard public identity before the Gateway listener becomes available.",
       "regression_test": "tests/test_trusted_recovery.py; tests/test_trusted_meter.py; tests/test_trusted_transport.py; tests/test_digest_meters.py; tests/test_phone_mesh.py; tests/test_phone_kernel.py; tests/test_phone_routes.py; tests/test_key_custody.py"
     },
@@ -115,6 +115,12 @@
       "after_sha256": "fd6e21d0e080822826497110c5dc77d058f447e1483ceca914d74c748195c49f",
       "reason": "Bound protective-context checks without repeated prefix scans.",
       "regression_test": "tests/test_backlog_regressions.py; tests/test_safety_screening.py"
+    },
+    "hypermesh_gateway_service/__init__.py": {
+      "before_sha256": "1591ea6766941626d5a0c904c1475cca1d2264e91a717fd149ab702cbc27c08d",
+      "after_sha256": "22f6f1b740fbed6991757aeefdf857ab997a2eb8899a9705c72019bddd00008d",
+      "reason": "Expose the approved runtime version.",
+      "regression_test": "tests_tools/test_release_export.py"
     }
   },
   "added_files": {

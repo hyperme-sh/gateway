@@ -14,6 +14,7 @@ from controlplane_api.service_cors import add_optional_service_cors
 from controlplane_api.health import router as health_router
 from controlplane_api.version import router as version_router
 
+from hypermesh_gateway_service import __version__
 from hypermesh_gateway_service.retained_privacy import router as privacy_router
 from hypermesh_gateway_service.phone_routes import router as phone_router, open_phone_peers
 from hypermesh_gateway_service.body_limit import BodyLimitMiddleware
@@ -157,7 +158,7 @@ def create_app(
         lifespan=lifespan,
         title="spanopticon Hypermesh Router",
         description=_OPENAPI_DESCRIPTION,
-        version="0.1.0",
+        version=__version__,
     )
 
     @app.exception_handler(DoorError)

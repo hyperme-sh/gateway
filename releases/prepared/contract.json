@@ -2,11 +2,11 @@
   "coverage": "conservative complete packaged hypermesh-gateway-service runtime, resources and installer metadata",
   "entry_points": null,
   "packaged_file_sha256": {
-    "hypermesh_gateway_service/__init__.py": "1591ea6766941626d5a0c904c1475cca1d2264e91a717fd149ab702cbc27c08d",
+    "hypermesh_gateway_service/__init__.py": "22f6f1b740fbed6991757aeefdf857ab997a2eb8899a9705c72019bddd00008d",
     "hypermesh_gateway_service/account_closure.py": "2bda8bc403a49dcc7de0caeeae42e0b51a6564049162eeddcda4bc80c0476f3f",
     "hypermesh_gateway_service/account_ledger.py": "c27e3fb9208d28cc8dd67dbb4942c7a4be262963dff2a81655839a1ea8cc332f",
     "hypermesh_gateway_service/account_owners.py": "aba392940a83ec8b547047a5b379a1e839b0ba9d7de8f5749b828a260234c9ee",
-    "hypermesh_gateway_service/app.py": "906f4e48cac41565334fc88d4bdba722fc0880bb34eff1d0d2a8ba0f10718f0c",
+    "hypermesh_gateway_service/app.py": "2066a6dcb2306baf38f5a6cadbf40659d3ec7d51f0e15310ed8fe57b6ab5af89",
     "hypermesh_gateway_service/body_limit.py": "8f8049a92a64100eee54885b1c440b2f5e870dd961583a0daacb1008027d02eb",
     "hypermesh_gateway_service/chat.py": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
     "hypermesh_gateway_service/classify.py": "30fe5d2ccc50152d6741a376c8c10f55a49c0d5983908dc502d618b7629c2b2a",
