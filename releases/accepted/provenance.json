@@ -1,0 +1,10 @@
+{
+  "repository": "hyperme-sh/gateway",
+  "tag": "v0.1.0",
+  "revision": "dba3c726f413e93f001882f00a84779ba7e3a9a7",
+  "release_id": 459826932,
+  "assets": {
+    "runtime-provenance.json": "sha256:07d5d899bfb35f2b91031e1c2a7c82b5eb390e09877428470d9b453d6379a57e"
+  },
+  "container_provenance_asset": "runtime-provenance.json"
+}
