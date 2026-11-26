@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "line": "0.1",
+  "line": "0.2",
   "components": {
     "hypermesh-gateway": {
-      "version": "0.1.0",
+      "version": "0.2.0",
       "contract": "contract.json",
-      "contract_sha256": "b5b5d6d283ff49ba83ff05e0e4e7e7d862b8953ea48185e6e1fddc7d1ce3f619",
+      "contract_sha256": "489d469bb648ed4fd8bf75317dca7bb288bd59fb2b5d810876ba2bc3771d63fa",
       "artifact": {
         "kind": "container",
-        "uri": "ghcr.io/hyperme-sh/hypermesh-gateway/runtime@sha256:a0b873f81b5d63e5057982fb5bc67a59724fe17e0692fda6bf7896fa30fa6e18",
-        "sha256": "a0b873f81b5d63e5057982fb5bc67a59724fe17e0692fda6bf7896fa30fa6e18"
+        "uri": "ghcr.io/hyperme-sh/hypermesh-gateway/runtime@sha256:a8f7b52d9a7589acbf1cef4d644c8a9350810e8312616eef6a886777bd4e9ea4",
+        "sha256": "a8f7b52d9a7589acbf1cef4d644c8a9350810e8312616eef6a886777bd4e9ea4"
       }
     }
   }

@@ -6,25 +6,19 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Exact release version (for example 0.1.0)
+        description: Exact release version (for example 0.2.0)
         required: true
         type: string
 permissions:
   contents: read
 jobs:
-  first-oci-admission:
-    if: vars.SPANOPTICON_RELEASE_BASELINE_SHA == ''
+  release-admission:
     permissions:
       actions: read
       contents: read
-    uses: hyperme-sh/spanopticon/.github/workflows/initial-oci-release.yml@596800be86e5c4d22ef574e9e1a8cd994f73a11c
+      packages: read
+    uses: hyperme-sh/spanopticon/.github/workflows/gateway-oci-successor.yml@91367f22ca9cba4acc5dc938192d57cadb2485a8
     with:
-      release-line: '0.1'
-      requested-version: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version || '' }}
-  release-admission:
-    if: vars.SPANOPTICON_RELEASE_BASELINE_SHA != ''
-    uses: hyperme-sh/spanopticon/.github/workflows/component-release.yml@596800be86e5c4d22ef574e9e1a8cd994f73a11c
-    with:
-      release-line: '0.1'
-      baseline-ref: ${{ vars.SPANOPTICON_RELEASE_BASELINE_SHA }}
+      release-line: '0.2'
+      baseline-ref: 222e4a8fe278aea844a30b7ba0f79f80b6ff033c
       requested-version: ${{ github.ref_type == 'tag' && github.ref_name || inputs.version || '' }}

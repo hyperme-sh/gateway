@@ -9,11 +9,12 @@ Public container publication and the remaining Apache repositories are tracked i
 
 Pull-request and `main` checks still build and test the source, including any clean-source or secret scan already in those jobs, and then discard temporary distribution files. They do not retain or publish package artifacts.
 
-For the first container release, the declaration in `releases/candidate` names
-the immutable Gateway image and the successful owner main build that qualified
-it. Run `release-admission.yml` from main with the exact version to verify the
-declaration and build before requesting the stable source tag. A subsequent
-push of that tag repeats the read-only check.
+The declaration in `releases/candidate` names the immutable Gateway image and
+the successful owner main build that qualified it. Run `release-admission.yml`
+from main with the exact version before requesting the stable source tag. For
+`v0.2.0`, the workflow pins the reviewed source record for the immutable
+`v0.1.0` release. It verifies both images and compares their OpenAPI contracts
+with the declared version normalized. A stable tag push repeats the check.
 
 Dispatch `release-publish.yml` on the authorized stable tag with the approved
 OCI manifest digest. It repeats admission on that tag, verifies the image
