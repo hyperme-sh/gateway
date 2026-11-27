@@ -2,11 +2,11 @@
   "coverage": "conservative complete packaged hypermesh-gateway-service runtime, resources and installer metadata",
   "entry_points": null,
   "packaged_file_sha256": {
-    "hypermesh_gateway_service/__init__.py": "1591ea6766941626d5a0c904c1475cca1d2264e91a717fd149ab702cbc27c08d",
+    "hypermesh_gateway_service/__init__.py": "22f6f1b740fbed6991757aeefdf857ab997a2eb8899a9705c72019bddd00008d",
     "hypermesh_gateway_service/account_closure.py": "2bda8bc403a49dcc7de0caeeae42e0b51a6564049162eeddcda4bc80c0476f3f",
     "hypermesh_gateway_service/account_ledger.py": "c27e3fb9208d28cc8dd67dbb4942c7a4be262963dff2a81655839a1ea8cc332f",
     "hypermesh_gateway_service/account_owners.py": "aba392940a83ec8b547047a5b379a1e839b0ba9d7de8f5749b828a260234c9ee",
-    "hypermesh_gateway_service/app.py": "906f4e48cac41565334fc88d4bdba722fc0880bb34eff1d0d2a8ba0f10718f0c",
+    "hypermesh_gateway_service/app.py": "2066a6dcb2306baf38f5a6cadbf40659d3ec7d51f0e15310ed8fe57b6ab5af89",
     "hypermesh_gateway_service/body_limit.py": "8f8049a92a64100eee54885b1c440b2f5e870dd961583a0daacb1008027d02eb",
     "hypermesh_gateway_service/chat.py": "21159365c67c93ccacb28bfee4e7b4fbeca4c0c9cff9a2bfea8292a0af90753e",
     "hypermesh_gateway_service/classify.py": "30fe5d2ccc50152d6741a376c8c10f55a49c0d5983908dc502d618b7629c2b2a",
@@ -33,7 +33,7 @@
     "hypermesh_gateway_service/renter_auth.py": "76e869be5e170dc00253727ff7221276cd87c8d52da3222d63509e8f92750078",
     "hypermesh_gateway_service/retained_privacy.py": "7124c22f9f2a237ea34756a0f4a639b4c48a5e857d2cd0b705a4f8774b289a1f",
     "hypermesh_gateway_service/route_resolve.py": "f7a56ec9a906f99080a5dd55cd2f139b87a047d9a74d2a16963301a5da9f1520",
-    "hypermesh_gateway_service/routes.py": "8593cfa4e2b1ffbf067383ed6c6de9507fc36f0056541ce2f6d5bd811d3f1de3",
+    "hypermesh_gateway_service/routes.py": "c47a954676abf7b4a0407117fb0dc7cea8e9894ab035b527b1cc51774dc2ad27",
     "hypermesh_gateway_service/safety.py": "fd6e21d0e080822826497110c5dc77d058f447e1483ceca914d74c748195c49f",
     "hypermesh_gateway_service/taxonomy.py": "fae0e6a97d89e32861bff9f656205ef9ecc36da08f33b356c7d984657381eaa2",
     "hypermesh_gateway_service/tenants.py": "7bcb7daf2495a632330a250e7cb8010454926c3df3e64c9b5481a495c98ed2a4",
@@ -49,8 +49,9 @@
     "hypermesh_gateway_service/trusted_meter/transport.py": "35a5f4c20469d88f5599602b99f6221b89072e1b5d19b8495ae13371d94c7ab5",
     "hypermesh_gateway_service/trusted_meter/wire.py": "b04820e565c181e26087f3d877be36368e7f8362239861cbc5413df9604bd90c",
     "hypermesh_gateway_service/verbs.py": "44cbc184d70f84d05a82befe3901b3021bf7862a8c9d1e82244657f1ff1d48c0",
-    "hypermesh_gateway_service/wg.py": "f04315c814376734d1749abf6e4beadf5cb81a948dc43633681b5466557c7821",
-    "hypermesh_gateway_service/wg_identity.py": "d5546a2286ef6fd1394b1b79250909dda36e12ea34b667c6d3184d197fc9f310"
+    "hypermesh_gateway_service/wg.py": "3bd7997b4da284b3ceb75020ee71f999c96f7dd53ed5d78f6e8937c2db32a293",
+    "hypermesh_gateway_service/wg_identity.py": "baea3c22847bbd6d64df49debd408d28790d4a12bb69745097df5e89955200d7",
+    "hypermesh_gateway_service/wireguard_host.py": "6f7776ee86484f3b54946b507f586a899086dc8d95c41b250a54cdb010878c27"
   },
   "provides_extra": [],
   "requires_dist": [
