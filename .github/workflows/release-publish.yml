@@ -17,10 +17,10 @@ jobs:
       actions: read
       contents: read
       packages: read
-    uses: hyperme-sh/spanopticon/.github/workflows/gateway-oci-successor.yml@91367f22ca9cba4acc5dc938192d57cadb2485a8
+    uses: hyperme-sh/spanopticon/.github/workflows/gateway-oci-successor.yml@8a78c1298a02163625a6dae98f5dce7fc742af40
     with:
       release-line: '0.2'
-      baseline-ref: 222e4a8fe278aea844a30b7ba0f79f80b6ff033c
+      baseline-ref: 156c766152c9bc162045c6459ad8a5e66f9889c3
       requested-version: ${{ github.ref_name }}
 
   publish:
