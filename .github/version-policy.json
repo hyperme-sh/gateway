@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "versions": {
-    "pyproject.toml": "0.2.0"
+    "pyproject.toml": "0.2.1"
   },
   "restorations": [],
   "owned_dependency_versions": {
@@ -32,7 +32,7 @@
     "marketplace-service": "0.1.0",
     "oracles-service": "0.1.0",
     "controlplane-sdk": "0.2.0",
-    "hypermesh-gateway-service": "0.2.0",
+    "hypermesh-gateway-service": "0.2.1",
     "controlplane-api": "0.23.0",
     "controlplane-legacy-auth-bridge": "0.1.0",
     "controlplane-identity": "0.15.0",
