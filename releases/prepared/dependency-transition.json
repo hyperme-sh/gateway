@@ -118,7 +118,7 @@
     },
     "hypermesh_gateway_service/__init__.py": {
       "before_sha256": "1591ea6766941626d5a0c904c1475cca1d2264e91a717fd149ab702cbc27c08d",
-      "after_sha256": "22f6f1b740fbed6991757aeefdf857ab997a2eb8899a9705c72019bddd00008d",
+      "after_sha256": "c0009f8574c5bc93ff4b744da7e726511c78aea5a54b52851650dfffa6317ca0",
       "reason": "Expose the approved runtime version.",
       "regression_test": "tests_tools/test_release_export.py"
     }

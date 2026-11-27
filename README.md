@@ -1,6 +1,6 @@
 # Hypermesh gateway
 
-`hypermesh-gateway-service` 0.2.0 is the Hypermesh data-plane gateway. It caches signed lease tickets from the control plane, keeps a WireGuard peer to each assigned host, and proxies renter chat to the host that ticket names. The Python package entry point is `python -m hypermesh_gateway_service.main`. The application factory is `hypermesh_gateway_service.app.create_app`.
+`hypermesh-gateway-service` 0.2.1 is the Hypermesh data-plane gateway. It caches signed lease tickets from the control plane, keeps a WireGuard peer to each assigned host, and proxies renter chat to the host that ticket names. The Python package entry point is `python -m hypermesh_gateway_service.main`. The application factory is `hypermesh_gateway_service.app.create_app`.
 
 ## Why
 
@@ -283,7 +283,7 @@ Package qualification, the runtime image, and stable tags are described in [Rele
 
 ## Release and versioning
 
-The package version is **0.2.0** (`pyproject.toml`). The release line in `release-policy.json` is **0.2**. A stable release is a `vMAJOR.MINOR.PATCH` tag admitted against an immutable baseline, then published from the exact artifacts the package workflow already tested. Day-to-day pushes to `main` retain those artifacts and do not publish a release. Details, including development `test-<commit>` snapshots and the runtime image, are in [Releasing](docs/releasing.md). The admission checklist is in [Release compatibility](docs/release-policy.md).
+The package version is **0.2.1** (`pyproject.toml`). The release line in `release-policy.json` is **0.2**. A stable release is a `vMAJOR.MINOR.PATCH` tag admitted against an immutable baseline, then published from the exact artifacts the package workflow already tested. Day-to-day pushes to `main` retain those artifacts and do not publish a release. Details, including development `test-<commit>` snapshots and the runtime image, are in [Releasing](docs/releasing.md). The admission checklist is in [Release compatibility](docs/release-policy.md).
 
 ## License
 

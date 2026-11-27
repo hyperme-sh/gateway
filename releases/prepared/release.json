@@ -3,13 +3,13 @@
   "line": "0.2",
   "components": {
     "hypermesh-gateway": {
-      "version": "0.2.0",
+      "version": "0.2.1",
       "contract": "contract.json",
-      "contract_sha256": "75aa4e2a8e7c6e95dcceb00fde0d27c6022549f47f6101c7d3a50a707a62721a",
+      "contract_sha256": "09d46684782873826e13a5bf3bdf16819f43f8deeeb0231d6b57630bb0a23190",
       "artifact": {
         "kind": "package",
-        "uri": "urn:sha256:fc8c0cc45007eb6c37bf3624b7b7c01b9d23b08f56b2714f390c91927052d90b",
-        "sha256": "fc8c0cc45007eb6c37bf3624b7b7c01b9d23b08f56b2714f390c91927052d90b"
+        "uri": "urn:sha256:6e98aa518b18340d281f89b195dd215e95a237578d734dd8d0e7931f8c7c36e6",
+        "sha256": "6e98aa518b18340d281f89b195dd215e95a237578d734dd8d0e7931f8c7c36e6"
       }
     }
   }
