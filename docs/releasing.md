@@ -12,8 +12,8 @@ Pull-request and `main` checks still build and test the source, including any cl
 The declaration in `releases/candidate` names the immutable Gateway image and
 the successful owner main build that qualified it. Run `release-admission.yml`
 from main with the exact version before requesting the stable source tag. For
-`v0.2.0`, the workflow pins the reviewed source record for the immutable
-`v0.1.0` release. It verifies both images and compares their OpenAPI contracts
+`v0.2.1`, the workflow pins the reviewed source record for the immutable
+`v0.2.0` release. It verifies both images and compares their OpenAPI contracts
 with the declared version normalized. A stable tag push repeats the check.
 
 Dispatch `release-publish.yml` on the authorized stable tag with the approved
